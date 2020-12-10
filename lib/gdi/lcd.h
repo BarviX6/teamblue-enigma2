@@ -6,6 +6,21 @@
 #include <lib/gdi/erect.h>
 #include "gpixmap.h"
 
+#ifdef HAVE_GRAPHLCD
+#include <glcdgraphics/bitmap.h>
+#include <glcdgraphics/glcd.h>
+#include <glcdgraphics/image.h>
+#include <glcddrivers/config.h>
+#include <glcddrivers/driver.h>
+#include <glcddrivers/drivers.h>
+#include <glcdgraphics/extformats.h>
+#include <byteswap.h>
+#endif
+
+#ifdef NO_LCD
+#include <lib/driver/vfd.h>
+#endif
+
 #define LCD_CONTRAST_MIN 0
 #define LCD_CONTRAST_MAX 63
 #define LCD_BRIGHTNESS_MIN 0
@@ -26,6 +41,9 @@ protected:
 	int locked;
 	static eLCD *instance;
 	void setSize(int xres, int yres, int bpp);
+#ifdef NO_LCD
+	evfd *vfd;
+#endif
 #endif
 public:
 	static eLCD *getInstance();
@@ -37,7 +55,7 @@ public:
 	virtual int setLCDBrightness(int brightness)=0;
 	virtual void setInverted( unsigned char )=0;
 	virtual void setFlipped(bool)=0;
-	virtual void setDump(bool)=0;
+	virtual void dumpLCD(bool png=true)=0;
 	virtual int waitVSync()=0;
 	virtual bool isOled() const=0;
 	int getLcdType() { return lcd_type; };
@@ -49,8 +67,12 @@ public:
 	int stride() { return _stride; };
 	virtual eSize size() { return res; };
 	virtual void update()=0;
+#ifndef NO_LCD
 #ifdef HAVE_TEXTLCD
 	virtual void renderText(ePoint start, const char *text);
+#endif
+#else
+	virtual void renderText(const char *text);
 #endif
 #endif
 };
@@ -59,7 +81,13 @@ class eDBoxLCD: public eLCD
 {
 	unsigned char inverted;
 	bool flipped;
-	bool dump;
+#ifdef HAVE_GRAPHLCD
+	GLCD::cDriver * lcd;
+	GLCD::cBitmap * bitmap;
+	int displayNumber;
+	int depth;
+	int width, height;
+#endif
 #ifdef SWIG
 	eDBoxLCD();
 	~eDBoxLCD();
@@ -73,12 +101,11 @@ public:
 	int setLCDBrightness(int brightness);
 	void setInverted( unsigned char );
 	void setFlipped(bool);
-	void setDump(bool);
+	void dumpLCD(bool);
 	bool isOled() const { return !!lcd_type; };
 	void setPalette(gUnmanagedSurface) {};
 	void update();
 	int waitVSync() { return 0; };
-	void dumpLCD2PNG(void);
 };
 
 #endif

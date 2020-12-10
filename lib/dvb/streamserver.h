@@ -5,6 +5,8 @@
 #include <lib/service/servicedvbstream.h>
 #include <lib/nav/core.h>
 
+#define TCP_USER_TIMEOUT        18  
+
 #ifndef SWIG
 class eStreamServer;
 

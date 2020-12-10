@@ -3,6 +3,7 @@
 
 #include <lib/base/eerror.h>
 #include <linux/fb.h>
+#include <linux/stmfb.h>
 
 #ifndef FB_DEV
 # define FB_DEV "/dev/fb0"
@@ -12,6 +13,13 @@ class fbClass
 {
 	int fbFd;
 	int xRes, yRes, stride, bpp;
+	struct stmfbio_output_configuration outcfg;
+	struct stmfbio_outputinfo outinfo;
+	struct stmfbio_planeinfo planemode;
+	struct stmfbio_var_screeninfo_ex infoex;
+
+	int xResSc, yResSc;
+	int topDiff, leftDiff, rightDiff, bottomDiff;
 	int available;
 	struct fb_var_screeninfo screeninfo;
 	fb_cmap cmap;
@@ -29,9 +37,6 @@ public:
 #else
 public:
 	unsigned char *lfb;
-	void enableManualBlit();
-	void disableManualBlit();
-	int showConsole(int state);
 	int SetMode(int xRes, int yRes, int bpp);
 	void getMode(int &xres, int &yres, int &bpp);
 	int Available() { return available; }
@@ -53,6 +58,15 @@ public:
 	int PutCMAP();
 #endif
 	static fbClass *getInstance();
+//---> "hack" for libeplayer3 fb access
+	int getFD() { return fbFd; }
+	unsigned char * getLFB_Direct() { return lfb; }
+	int getScreenResX() { return xRes; }
+	int getScreenResY() { return yRes; }
+//---<
+	void clearFBblit();
+	int getFBdiff(int ret);
+	void setFBdiff(int top, int right, int left, int bottom);
 
 	int lock();
 	void unlock();

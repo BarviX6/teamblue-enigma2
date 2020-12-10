@@ -900,6 +900,17 @@
 		<key id="KEY_F2" mapto="f2_long" flags="l" />
 		<key id="KEY_F3" mapto="f3" flags="b" />
 		<key id="KEY_F3" mapto="f3_long" flags="l" />
+		<key id="KEY_SLEEP" mapto="sleep" flags="b" />
+		<key id="KEY_SLEEP" mapto="sleep_long" flags="l" />
+		<key id="KEY_TVSAT" mapto="tvsat" flags="m" />
+		<key id="KEY_FIND" mapto="find" flags="m" />
+		<key id="KEY_PLAYMODE" mapto="playmode" flags="m" />
+		<key id="KEY_USB" mapto="usb" flags="m" />
+		<key id="KEY_PORTAL" mapto="portal" flags="b" />
+		<key id="KEY_PORTAL" mapto="portal_long" flags="l" />
+		<key id="KEY_FAST" mapto="fast" flags="m" />
+		<key id="KEY_SLOW" mapto="slow" flags="m" />
+		<key id="KEY_RECALL" mapto="recall" flags="m" />
 		<key id="KEY_AUX" mapto="HDMIin" flags="b" />
 		<key id="KEY_AUX" mapto="HDMIin_long" flags="l" />
 		<key id="KEY_PAGEUP" mapto="pageUp" flags="b" />

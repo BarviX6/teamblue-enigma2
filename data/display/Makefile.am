@@ -19,7 +19,11 @@ SUBDIRS = vfd255
 endif
 
 if HAVE_TEXTLCD
-SUBDIRS = displaytext
+if SPARK
+SUBDIRS += displaydualtext
+else
+SUBDIRS += displaytext
+endif
 endif
 
 dist_install_DATA = skin_display.xml

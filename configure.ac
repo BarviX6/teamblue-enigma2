@@ -105,6 +105,7 @@ AM_CONDITIONAL(DREAMBOX, test `echo "$BOXTYPE" | cut -b 1-2` == "dm")
 AM_CONDITIONAL(SKYLAKE, test `echo "$BOXTYPE" | cut -b 1-2` == "hd")
 AM_CONDITIONAL(HAVE_TEMPFANCONTROL, test "$BOXTYPE" == dm8000 -o "$BOXTYPE" == dm800se -o "$BOXTYPE" == dm500hd)
 AM_CONDITIONAL(GIGABLUE, test `echo "$BOXTYPE" | cut -b 1-2` == "gb")
+AM_CONDITIONAL(SPARK, test `echo "$BOXTYPE" | cut -b 1-5` == "spark")
 AM_CONDITIONAL(GBIPBOX, test "$MACHINEBUILD" == gbipbox)
 
 if test `echo "$BOXTYPE" | cut -b 1-2` == "dm"; then
@@ -238,6 +239,10 @@ if test "$BOXTYPE" == "gbmv200"; then
 	AC_DEFINE(CONFIG_HISILICON_FB, 1,[define add HISILICON framebuffer blit])
 	AC_DEFINE(FORCE_ALPHABLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])
 	AC_DEFINE(VMSG_TYPE2, 1,[define vtuner_message type 2])
+fi
+
+if test "$BOXTYPE" == "spark" -o "$BOXTYPE" == "spark7162"; then
+	AC_DEFINE(FORCE_ADVANCED_REMOTE, 1,[define to fixup the input device identification when the remote control is actually an 'advanced' remote (with play/forward/rewind keys)])
 fi
 
 AC_ARG_WITH(libsdl,
@@ -404,6 +409,7 @@ data/gbipbox/Makefile
 data/keymaps/Makefile
 data/display/Makefile
 data/display/displaytext/Makefile
+data/display/displaydualtext/Makefile
 data/display/lcd220/Makefile
 data/display/lcd400/Makefile
 data/display/lcd_skin220/Makefile
@@ -451,6 +457,8 @@ lib/python/Plugins/Extensions/PicturePlayer/data/Makefile
 lib/python/Plugins/Extensions/SocketMMI/Makefile
 lib/python/Plugins/Extensions/SocketMMI/meta/Makefile
 lib/python/Plugins/Extensions/SocketMMI/src/Makefile
+lib/python/Plugins/Extensions/sparkVFD/Makefile
+lib/python/Plugins/Extensions/sparkVFD/meta/Makefile
 lib/python/Plugins/PLi/Makefile
 lib/python/Plugins/SystemPlugins/Makefile
 lib/python/Plugins/SystemPlugins/AnimationSetup/Makefile

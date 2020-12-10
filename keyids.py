@@ -1,7 +1,7 @@
 # The following KEYID numbers are currently unused:
 #
 # 199, 204, 228-237, 239, 241-255, 258-303, 316-351,
-# 416-437, 439-447, 452-509, 512-529, 531-626, 628-UP.
+# 416-437, 439-447, 452-509, 522-529, 531-626, 628-UP.
 #
 # PLEASE NOTE: If you add any buttons PLEASE update this list to assist
 # others in maintaining this file.
@@ -321,6 +321,16 @@ KEYIDS = {
 	"KEY_DEL_LINE": 451,
 	"KEY_ASCII": 510,
 	"KEY_MAX": 511,
+	"KEY_TVSAT": 512,
+	"KEY_PICASA": 513,
+	"KEY_SHOUTCAST": 514,
+	"KEY_YOUTUBE": 515,
+	"KEY_SPARK": 516,
+	"KEY_RECALL": 517,
+	"KEY_PLAYMODE": 518,
+	"KEY_USB": 519,
+	"KEY_PORTAL": 520,
+	"KEY_FAST": 521,
 	"KEY_TOUCHPAD_TOGGLE": 530,
 	"KEY_MOUSE": 530,
 	"KEY_VOD": 627

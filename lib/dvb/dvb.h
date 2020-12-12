@@ -178,12 +178,9 @@ class eDVBResourceManager: public iObject, public sigc::trackable
 	ePtr<iDVBChannelList> m_list;
 	ePtr<iDVBSatelliteEquipmentControl> m_sec;
 	static eDVBResourceManager *instance;
-
 	friend class eDVBChannel;
 	friend class eFBCTunerManager;
 	ePtr<eFBCTunerManager> m_fbcmng;
-	friend class eRTSPStreamClient;
-
 	RESULT addChannel(const eDVBChannelID &chid, eDVBChannel *ch);
 	RESULT removeChannel(eDVBChannel *ch);
 
@@ -246,6 +243,8 @@ public:
 	bool frontendIsMultistream(int index);
 	std::string getFrontendCapabilities(int index);
 	void setFrontendType(int index, const char *types);
+protected:
+	void initDemux(int num_demux);
 };
 SWIG_TEMPLATE_TYPEDEF(ePtr<eDVBResourceManager>, eDVBResourceManager);
 SWIG_EXTEND(ePtr<eDVBResourceManager>,
@@ -275,7 +274,7 @@ public:
 	eDVBChannelID getChannelID() { return m_channel_id; }
 #if defined(__sh__) //see filepush.h
 	int getSkipMode() { return m_skipmode_m; }
-#endif	
+#endif
 
 	RESULT connectStateChange(const sigc::slot1<void,iDVBChannel*> &stateChange, ePtr<eConnection> &connection);
 	RESULT connectEvent(const sigc::slot2<void,iDVBChannel*,int> &eventChange, ePtr<eConnection> &connection);
@@ -313,7 +312,6 @@ private:
 	sigc::signal2<void,iDVBChannel*,int> m_event;
 	int m_state;
 	ePtr<iTsSource> m_source;
-	std::string m_streaminfo_file;
 
 			/* for channel list */
 	ePtr<eDVBResourceManager> m_mgr;

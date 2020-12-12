@@ -27,9 +27,5 @@ else
 dist_pkgdata_DATA += startwizard.xml
 endif
 
-if HAVE_TEXTLCD
-SUBDIRS += displaydualtext
-endif
-
 iso-639-3.pck: $(srcdir)/iso-639-3.tab
 	python $(srcdir)/convert-iso-639-3.py $< $@

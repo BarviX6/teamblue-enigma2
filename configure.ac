@@ -409,7 +409,6 @@ data/gbipbox/Makefile
 data/keymaps/Makefile
 data/display/Makefile
 data/display/displaytext/Makefile
-data/display/displaydualtext/Makefile
 data/display/lcd220/Makefile
 data/display/lcd400/Makefile
 data/display/lcd_skin220/Makefile

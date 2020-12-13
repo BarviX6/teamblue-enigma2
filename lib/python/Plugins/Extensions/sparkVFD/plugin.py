@@ -17,6 +17,7 @@ from Components.Language import language
 from Components.Sources.StaticText import StaticText
 from Tools.HardwareInfo import HardwareInfo
 from Screens.Screen import Screen
+from translit import translify
 import gettext
 
 stb = HardwareInfo().get_device_name()
@@ -71,6 +72,12 @@ config.plugins.vfdicon.recredledon = ConfigSelection(default = "2",
 		("1", _("on")),
 		("2", _("blink"))
 		])
+config.plugins.vfdicon.translit = ConfigYesNo(default = True)
+config.plugins.vfdicon.translit = ConfigSelection(default = "1",
+	choices = [
+		("0", _("off")),
+		("1", _("on")),
+		])		
 config.plugins.vfdicon.extMenu = ConfigYesNo(default=True)
 
 class ConfigVFDDisplay(Screen, ConfigListScreen):
@@ -105,6 +112,7 @@ class ConfigVFDDisplay(Screen, ConfigListScreen):
 		self.cfglist.append(getConfigListEntry(_('Red LED on in standby'), config.plugins.vfdicon.standbyredledon))
 		self.cfglist.append(getConfigListEntry(_('Red LED on in deep standby'), config.plugins.vfdicon.dstandbyredledon))
 		self.cfglist.append(getConfigListEntry(_('Red LED during recording'), config.plugins.vfdicon.recredledon))
+		self.cfglist.append(getConfigListEntry(_('Enable translit?'), config.plugins.vfdicon.translit))		
 	        self.cfglist.append(getConfigListEntry(_('Show this plugin in plugin menu'), config.plugins.vfdicon.extMenu))
 		self["config"].list = self.cfglist
 		self["config"].l.setList(self.cfglist)
@@ -218,7 +226,7 @@ class VFDIcons:
 						servicename = "PLAY"
 						currPlay = self.session.nav.getCurrentService()
 						if currPlay != None and self.mp3Available: # show the MP3 tag
-							servicename = currPlay.info().getInfoString(iServiceInformation.sTagTitle) + " - " + currPlay.info().getInfoString(iServiceInformation.sTagArtist)
+							servicename = currPlay.info().getInfoString(iServiceInformation.sTagTitle) + "MP3" + currPlay.info().getInfoString(iServiceInformation.sTagArtist)
 						else: # show the file name
 							self.service = self.session.nav.getCurrentlyPlayingServiceReference()
 							if not self.service is None:
@@ -239,6 +247,8 @@ class VFDIcons:
 							servicename = ServiceReference(service).getServiceName()
 			if config.plugins.vfdicon.uppercase.value is not None:
 				servicename = servicename.upper()
+			if config.plugins.vfdicon.translit.value:
+				servicename = translify(servicename)				
 			evfd.getInstance().vfd_write_string(servicename[0:63])
 
 	def checkAudioTracks(self):
@@ -370,5 +380,6 @@ def Plugins(**kwargs):
 			name = _("sparkVFD"),
 			description = _("LED display configuration for Spark"),
 			where = PluginDescriptor.WHERE_PLUGINMENU,
+			icon = _("leddisplay.png"),			
 			fnc = opencfg))
 	return l

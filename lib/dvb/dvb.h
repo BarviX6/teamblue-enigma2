@@ -226,7 +226,6 @@ public:
 			   the frontend must be tuned lateron. there is no guarante
 			   that tuning will succeed - it just means that if this frontend
 			   can't tune, no other frontend could do it.
-
 			   there might be a priority given to certain frontend/chid
 			   combinations. this will be evaluated here. */
 	RESULT allocateFrontend(ePtr<eDVBAllocatedFrontend> &fe, ePtr<iDVBFrontendParameters> &feparm, bool simulate=false);
@@ -246,8 +245,6 @@ public:
 	bool frontendIsMultistream(int index);
 	std::string getFrontendCapabilities(int index);
 	void setFrontendType(int index, const char *types);
-protected:
-	void initDemux(int num_demux);
 };
 SWIG_TEMPLATE_TYPEDEF(ePtr<eDVBResourceManager>, eDVBResourceManager);
 SWIG_EXTEND(ePtr<eDVBResourceManager>,
@@ -275,9 +272,6 @@ public:
 		/* cannot be used for PVR channels. */
 	RESULT setChannel(const eDVBChannelID &id, ePtr<iDVBFrontendParameters> &feparam);
 	eDVBChannelID getChannelID() { return m_channel_id; }
-#if defined(__sh__) //see filepush.h
-	int getSkipMode() { return m_skipmode_m; }
-#endif	
 
 	RESULT connectStateChange(const sigc::slot1<void,iDVBChannel*> &stateChange, ePtr<eConnection> &connection);
 	RESULT connectEvent(const sigc::slot2<void,iDVBChannel*,int> &eventChange, ePtr<eConnection> &connection);

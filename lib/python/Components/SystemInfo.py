@@ -47,7 +47,7 @@ SystemInfo["LCDshow_symbols"] = (getBoxType().startswith("et9") or getBoxType() 
 SystemInfo["LCDsymbol_hdd"] = getBoxType() in ("hd51", "vs1500") and fileCheck("/proc/stb/lcd/symbol_hdd")
 SystemInfo["FrontpanelDisplayGrayscale"] = fileExists("/dev/dbox/oled0")
 SystemInfo["LcdDisplay"] = fileExists("/dev/dbox/lcd0")
-SystemInfo["DeepstandbySupport"] = getBoxType() != "dm800"
+SystemInfo["DeepstandbySupport"] =  True
 SystemInfo["OledDisplay"] = fileExists(resolveFilename(SCOPE_SKIN, 'display/lcd_skin/skin_lcd_default.xml'))
 SystemInfo["GraphicLCD"] = getBoxType() in ('quadbox2400', )
 SystemInfo["GBWOL"] = fileExists("/usr/bin/gigablue_wol")
@@ -108,7 +108,7 @@ SystemInfo["HasColorimetry"] = fileCheck("/proc/stb/video/hdmi_colorimetry")
 SystemInfo["HasHDMI-CEC"] = HardwareInfo().has_hdmi() and fileExists(resolveFilename(SCOPE_PLUGINS, "SystemPlugins/HdmiCEC/plugin.pyo")) and (fileExists("/dev/cec0") or fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0"))
 SystemInfo["HasHdrType"] = fileCheck("/proc/stb/video/hdmi_hdrtype")
 SystemInfo["HasYPbPr"] = getMachineBuild() in ('gb7356', 'gb7325') or getBoxType() in ('gbultraue', 'gbultraueh', 'gb800ueplus', 'gb800seplus')
-SystemInfo["HasScart"] = getMachineBuild() in ('gb7325', )
+SystemInfo["HasScart"] = True
 SystemInfo["HasSVideo"] = getMachineBuild() in ('dummy', )
 SystemInfo["HasComposite"] = getMachineBuild() in ('gb7356', 'gb7358', 'gb7325') or getBoxType() in ('gbultraue', 'gbultraueh')
 SystemInfo["HasAutoVolume"] = fileExists("/proc/stb/audio/avl_choices") and fileCheck("/proc/stb/audio/avl")

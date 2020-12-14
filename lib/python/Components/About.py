@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from boxbranding import getImageVersion, getMachineBuild, getBoxType, getBrandOEM
 import struct, socket, fcntl, re, sys, os, time
 from sys import modules
 from Tools.HardwareInfo import HardwareInfo
@@ -59,11 +60,13 @@ def getChipSetString():
 			f = open('/proc/stb/info/chipset', 'r')
 			chipset = f.read()
 			f.close()
-			return str(chipset.lower().replace('\n','').replace('bcm','BCM').replace('brcm','BRCM').replace('sti',''))
+			return str(chipset.lower().replace('\n','').replace('bcm','BCM').replace('brcm','BRCM').replace('sti','STI'))
 		except IOError:
 			return "unavailable"
 
 def getCPUString():
+	if getBrandOEM() in ('fulan'):
+		return "STI"
 	if getMachineBuild() in ('xc7362', ):
 		return "Broadcom"
 	elif getMachineBuild() in ('gbmv200', ):

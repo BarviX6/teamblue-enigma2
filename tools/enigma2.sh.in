@@ -12,7 +12,7 @@ else
 fi
 
 case "$BOXCHIPSET" in
-bcm7356|bcm7362|bcm73625|bcm7252s|bcm72604 )
+bcm7356|bcm7362|bcm73625|bcm7252s|bcm72604|sti7111 )
   TASKSETVALUE=2;;
 * )
   TASKSETVALUE=1;;
@@ -65,19 +65,9 @@ fi
 # /etc/init.d/autofs restart
 #fi
 
-# remove annoying WebInterface relicts
-#if [ -d @libdir@/enigma2/python/Plugins/Extensions/WebInterface/ ]; then
-#	rm -rf @libdir@/enigma2/python/Plugins/Extensions/WebInterface/
-#fi
+# write -E2- on vfd display
+echo "TEAMBLUE" > /dev/vfd
 
-if [ -e /proc/stb/info/boxtype ]; then
-	stbcheck=`cat /proc/stb/info/boxtype`
-	if [ $stbcheck == "gbmv200" ]; then
-		count=`ps -ef |grep libreader |grep -v "grep" |wc -l`
-		if [ 0 == $count ];then
-			libreader 720P_50
-		fi
-	fi
 fi
 if [ -x @bindir@/showiframe ]; then
 	if [ -f @sysconfdir@/enigma2/backdrop.mvi ]; then
@@ -97,13 +87,6 @@ fi
 if [ -d /home/root ]; then
 	export HOME=/home/root
 	cd
-fi
-
-# check for sundtek tuner helper lib
-if [ -e /opt/lib/libmediaclient.so ]; then
-	LIBS="/opt/lib/libmediaclient.so @libdir@/libopen.so.0.0.0"
-else
-	LIBS="@libdir@/libopen.so.0.0.0"
 fi
 
 sync
@@ -167,17 +150,6 @@ case $ret in
 		sleep 1;
 		/sbin/rmmod fp
 		/sbin/modprobe fp
-		/sbin/reboot
-		;;
-	16)
-		if [ -e /dev/block/by-name/bootoptions ]; then
-			mkdir -p /tmp/bootoptions
-			mount /dev/block/by-name/bootoptions /tmp/bootoptions
-			cp -f /tmp/bootoptions/STARTUP_RECOVERY /tmp/bootoptions/STARTUP_ONCE
-		else
-			echo "rescue" > /proc/stb/fp/boot_mode
-		fi
-		[[ -e /etc/enigma2/.deep ]] && rm /etc/enigma2/.deep
 		/sbin/reboot
 		;;
 	42)

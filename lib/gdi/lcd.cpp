@@ -442,7 +442,7 @@ void eDBoxLCD::update()
 #else
 				__u16 col16 = *((__u16*)(((__u16 *)buf16) + y * width + x));
 #endif
-				__u8 red, green, blue, alpha; 
+				__u8 red, green, blue, alpha;
 				__u32 color32;
 
 				/* BBBBB GGGGGG RRRRR */

@@ -9,6 +9,7 @@ from Components.About import about
 from Components.ScrollLabel import ScrollLabel
 from Components.Button import Button
 from Components.config import config
+from enigma import eGetEnigmaDebugLvl
 
 from Components.Pixmap import MultiPixmap
 from Components.Network import iNetwork
@@ -18,7 +19,7 @@ from Components.ProgressBar import ProgressBar
 from os import popen
 from Tools.StbHardware import getFPVersion
 
-from boxbranding import getBoxType, getMachineBuild
+from boxbranding import getBoxType, getMachineBuild, getImageVersion, getImageType
 boxtype = getBoxType()
 
 from enigma import eTimer, eLabel, eConsoleAppContainer, getDesktop
@@ -173,6 +174,7 @@ class About(Screen):
 		AboutText += EnigmaSkin + "\n"
 
 		AboutText += _("Python version: ") + about.getPythonVersionString() + "\n"
+		AboutText += _("Enigma2 debug level:\t%d") % eGetEnigmaDebugLvl() + "\n"
 
 		GStreamerVersion = _("GStreamer: ") + about.getGStreamerVersionString(cpu).replace("GStreamer","")
 		self["GStreamerVersion"] = StaticText(GStreamerVersion)
@@ -342,8 +344,8 @@ class CommitInfo(Screen):
 		self.project = 0
 		self.projects = [
 			#("organisation",  "repository",           "readable name",                "branch", "github/gitlab"),
-			("teamblue-e2",      "enigma2",               "teamBlue Enigma2",             "6.5", "github"),
-			("teamblue-e2",      "skin",             "teamBlue Skin GigaBlue Pax",   "master", "github"),
+                        ("teamblue-e2",      "enigma2",               "teamBlue Enigma2",             ("master" if (getImageType() == "DEV") else getImageVersion())  , "github"),
+			("teamblue-e2",      "skin",             "teamBlue Skin GigaBlue Pax",   ("master" if (getImageType() == "release") else getImageType()), "github"),
 			("oe-alliance",   "oe-alliance-core",     "OE Alliance Core",             "4.5", "github"),
 			("oe-alliance",   "oe-alliance-plugins",  "OE Alliance Plugins",          "master", "github"),
 			("oe-alliance",   "enigma2-plugins",      "OE Alliance Enigma2 Plugins",  "master", "github")
@@ -888,6 +890,10 @@ class Troubleshoot(Screen):
 		self.container = None
 		self.close()
 
+	def getDebugFilesList(self):
+		import glob
+		return [x for x in sorted(glob.glob("%s/Enigma2-debug-*.log" % config.crash.debug_path.value), key=lambda x: os.path.isfile(x) and os.path.getmtime(x))]
+
 	def getLogFilesList(self):
 		import glob
 		home_root = "/home/root/enigma2_crash.log"
@@ -896,7 +902,7 @@ class Troubleshoot(Screen):
 
 	def updateOptions(self):
 		self.titles = ["dmesg", "ifconfig", "df", "top", "ps", "messages"]
-		self.commands = ["dmesg", "ifconfig", "df -h", "top -n 1", "ps", "cat /var/volatile/log/messages"]
+		self.commands = ["dmesg", "ifconfig", "df -h", "top -n 1", "ps -l", "cat /var/volatile/log/messages"]
 		install_log = "/home/root/autoinstall.log"
 		if os.path.isfile(install_log):
 				self.titles.append("%s" % install_log)
@@ -909,6 +915,14 @@ class Troubleshoot(Screen):
 			for fileName in reversed(fileNames):
 				self.titles.append("logfile %s (%s/%s)" % (fileName, logfileCounter, totalNumberOfLogfiles))
 				self.commands.append("cat %s" % (fileName))
+				logfileCounter += 1
+		fileNames = self.getDebugFilesList()
+		if fileNames:
+			totalNumberOfLogfiles = len(fileNames)
+			logfileCounter = 1
+			for fileName in reversed(fileNames):
+				self.titles.append("debug log %s (%s/%s)" % (fileName, logfileCounter, totalNumberOfLogfiles))
+				self.commands.append("tail -n 2500 %s" % (fileName))
 				logfileCounter += 1
 		self.commandIndex = min(len(self.commands) - 1, self.commandIndex)
 		self.updateKeys()

@@ -259,9 +259,10 @@ class ChannelContextMenu(Screen):
 				if csel.movemode:
 					append_when_current_valid(current, menu, (_("Disable move mode"), self.toggleMoveMode), level=1, key="6")
 				else:
-					append_when_current_valid(current, menu, (_("Enable move mode"), self.toggleMoveMode), level=1, key="6")
-				append_when_current_valid(current, menu, (_("Remove entry"), self.removeEntry), level=0, key="8")
-				self.removeFunction = self.removeCurrentService
+					append_when_current_valid(current, menu, (_("Enable move mode"), self.toggleMoveMode), level=0, key="6")
+				if csel.entry_marked and not inAlternativeList:
+					append_when_current_valid(current, menu, (_("Remove entry"), self.removeEntry), level=0, key="8")
+					self.removeFunction = self.removeCurrentService
 				if not csel.entry_marked and not inBouquetRootList and current_root and not (current_root.flags & eServiceReference.isGroup):
 					if current.type != -1:
 						menu.append(ChoiceEntryComponent("dummy", (_("Add marker"), self.showMarkerInputBox)))
@@ -2460,6 +2461,7 @@ class ChannelSelectionRadio(ChannelSelectionBase, ChannelSelectionEdit, ChannelS
 				"keyRadio": self.cancel,
 				"cancel": self.cancel,
 				"ok": self.channelSelected,
+				"audio": self.audioSelection
 			})
 
 		self.__event_tracker = ServiceEventTracker(screen=self, eventmap=
@@ -2489,7 +2491,7 @@ class ChannelSelectionRadio(ChannelSelectionBase, ChannelSelectionEdit, ChannelS
 		self.session.nav.playService(lastservice)
 
 	def startRassInteractive(self):
-		self.info.hide();
+		self.info.hide()
 		self.infobar.rass_interactive = self.session.openWithCallback(self.RassInteractiveClosed, RassInteractive)
 
 	def RassInteractiveClosed(self):
@@ -2595,6 +2597,9 @@ class ChannelSelectionRadio(ChannelSelectionBase, ChannelSelectionEdit, ChannelS
 
 	def zapBack(self):
 		self.channelSelected()
+
+	def audioSelection(self):
+		Screens.InfoBar.InfoBar.instance and Screens.InfoBar.InfoBar.instance.audioSelection()
 
 class SimpleChannelSelection(ChannelSelectionBase, SelectionEventInfo):
 	def __init__(self, session, title, currentBouquet=False, returnBouquet=False, setService=None, setBouquet=None):

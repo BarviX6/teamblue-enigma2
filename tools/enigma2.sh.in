@@ -4,6 +4,9 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 datarootdir=@datarootdir@
 
+# write -E2- on vfd display
+echo "TEAMBLUE" > /dev/vfd
+
 # set TASKSETVALUE to start enigma2
 if [ -f /proc/stb/info/chipset ]; then
   BOXCHIPSET=$(head /proc/stb/info/chipset)
@@ -17,10 +20,6 @@ bcm7356|bcm7362|bcm73625|bcm7252s|bcm72604|sti7111 )
 * )
   TASKSETVALUE=1;;
 esac
-
-# disable oom killer
-# echo 99 >/proc/sys/vm/overcommit_ratio
-# echo 2 >/proc/sys/vm/overcommit_memory
 
 # check for /etc/enigma2 folder
 if [ ! -d /etc/enigma2 ] ; then
@@ -57,16 +56,10 @@ fi
 #	@sbindir@/ntpdate -s -u pool.ntp.org &
 #fi
 
-# update permissions of autofs config files
-#if [ ! -f /etc/auto.network ] ; then
-# chmod 640 /etc/auto.network
-# chmod 644 /etc/auto.master
-# chmod 755 /etc/auto.net
-# /etc/init.d/autofs restart
+# remove annoying WebInterface relicts
+#if [ -d @libdir@/enigma2/python/Plugins/Extensions/WebInterface/ ]; then
+#	rm -rf @libdir@/enigma2/python/Plugins/Extensions/WebInterface/
 #fi
-
-# write -E2- on vfd display
-echo "TEAMBLUE" > /dev/vfd
 
 fi
 if [ -x @bindir@/showiframe ]; then
@@ -89,14 +82,25 @@ if [ -d /home/root ]; then
 	cd
 fi
 
+# any debuglevel passed?
+DEBUG_LVL=${ENIGMA_DEBUG_LVL:-4}
+
+#check for sundtek tuner helper lib
+if [ -e /opt/lib/libmediaclient.so ]; then
+	LIBS="/opt/lib/libmediaclient.so @libdir@/libopen.so.0.0.0"
+else
+	LIBS="@libdir@/libopen.so.0.0.0"
+fi
+
 sync
 
 # init script for sysctl is missing, so manually load /etc/sysctl.conf here
 sysctl -p
 
-# adjust oom score enigma2
-#(sleep 2; echo "enigma2 is the main pvr application... adjust oom score!"; PID=$(pidof enigma2); \
-#	[ -e /proc/$PID/oom_score_adj ] && echo "-999" > /proc/$PID/oom_score_adj || echo "-17" > /proc/$PID/oom_adj;) &
+(sleep 2; echo "enigma2 is the main pvr application... adjust oom score!"; PID=$(pidof enigma2); \
+        [ -e /proc/$PID/oom_score_adj ] && echo "-999" > /proc/$PID/oom_score_adj || echo "-17" > /proc/$PID/oom_adj;) &
+
+export LC_CTYPE="en_US.UTF-8"
 
 if [ "$(grep config.crash.enabledebug /etc/enigma2/settings)" == "config.crash.enabledebug=true" ]; then
 	RANDOMIZE1970=''
@@ -104,18 +108,16 @@ if [ "$(grep config.crash.enabledebug /etc/enigma2/settings)" == "config.crash.e
 	if [ "$time" = 1970 ]; then
 		RANDOMIZE1970="$(strings /dev/urandom | grep -o '[[:alnum:]]' | head -n 5 | tr -d '\n')"
 	fi
+	LOGFOLDER="/home/root/logs/"
+	if [ ! -d $LOGFOLDER ] ; then mkdir -p $LOGFOLDER; fi
 	if [ "$(grep config.crash.debug_path= /etc/enigma2/settings | sed 's/config.crash.debug_path=//g')" != "" -a -d "$(grep config.crash.debug_path= /etc/enigma2/settings | sed 's/config.crash.debug_path=//g')" ]; then
-		LD_PRELOAD=$LIBS taskset $TASKSETVALUE @bindir@/enigma2 --debug-no-color &> $(grep config.crash.debug_path= /etc/enigma2/settings | sed 's/config.crash.debug_path=//g')Enigma2-debug-$(date +%Y%m%d_%H-%M-%S)$RANDOMIZE1970.log
-	else
-		LD_PRELOAD=$LIBS taskset $TASKSETVALUE @bindir@/enigma2 --debug-no-color &> /home/root/logs/Enigma2-debug-$(date +%Y%m%d_%H-%M-%S)$RANDOMIZE1970.log
+		LOGFOLDER=$(grep config.crash.debug_path= /etc/enigma2/settings | sed 's/config.crash.debug_path=//g')
 	fi
+	LD_PRELOAD=$LIBS ENIGMA_DEBUG_LVL=$DEBUG_LVL @bindir@/enigma2 2&>1 | tee -a ${LOGFOLDER}Enigma2-debug-$(date +%Y%m%d_%H-%M-%S)${RANDOMIZE1970}.log
+	ret=${PIPESTATUS[0]}
 else
-	# in case $TERM is "linux" the serial output is activated - discard debug output
-	if [ "$TERM" = linux ]; then
-		LD_PRELOAD=$LIBS taskset $TASKSETVALUE @bindir@/enigma2 2> /dev/null
-	else
-		LD_PRELOAD=$LIBS taskset $TASKSETVALUE @bindir@/enigma2
-	fi
+	LD_PRELOAD=$LIBS ENIGMA_DEBUG_LVL=$DEBUG_LVL @bindir@/enigma2
+	ret=$?
 fi
 
 # enigma2 exit codes:
@@ -126,7 +128,6 @@ fi
 #
 # >128 signal
 
-ret=$?
 if [ "$ret" -ne "1" ]; then
 	if [ -e /proc/stb/info/boxtype ]; then
 		stbcheck=`cat /proc/stb/info/boxtype`

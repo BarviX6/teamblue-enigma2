@@ -1,5 +1,4 @@
-from boxbranding import getBoxType, getBrandOEM, getMachineName
-from Components.About import about
+from boxbranding import *
 
 hw_info = None
 
@@ -46,9 +45,7 @@ class HardwareInfo:
 			self.device_model = self.device_name
 
 		# HDMI capbility
-		if getBrandOEM() in ('fulan'):
-			self.device_hdmi = True		
-		if getMachineBuild() in ('gb7325', 'gb7358', 'gb7356', 'gb7362', 'gb73625', 'gb72525', 'gb7252', 'gb72604', 'xc7362', 'hd2400', 'hd51', 'gbmv200', 'gb72604'):
+		if getMachineBuild() in ('gis8120', 'gb7325', 'gb7358', 'gb7356', 'gb7362', 'gb73625', 'gb72525', 'gb7252', 'gb72604', 'xc7362', 'hd2400', 'hd51', 'gbmv200', 'gb72604'):
 			self.device_hdmi = True
 		else:
 			self.device_hdmi = False
@@ -78,3 +75,4 @@ class HardwareInfo:
 
 	def has_hdmi(self):
 		return hw_info.device_hdmi
+		

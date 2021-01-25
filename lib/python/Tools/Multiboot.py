@@ -1,4 +1,4 @@
-lib/python/Tools/Multiboot.py   import glob
+import glob
 import shutil
 import subprocess
 
@@ -25,7 +25,7 @@ def getMBbootdevice():
 		rmdir(Imagemount)
 
 def getparam(line, param):
-	return line.rsplit("%s=" % param, 1)[1].split(" ", 1)[0]
+	return line.replace("userdataroot", "rootuserdata").rsplit('%s=' % param, 1)[1].split(' ', 1)[0]
 
 def getMultibootslots():
 	bootslots = {}

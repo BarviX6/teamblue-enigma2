@@ -390,6 +390,7 @@ int eDVBVideo::startPid(int pid, int type)
 		pes.flags    = DMX_IMMEDIATE_START;
 #else
 		pes.flags    = 0;
+#endif
 		eDebugNoNewLineStart("[eDVBVideo] DMX_SET_PES_FILTER(0x%02x) - video - ", pid);
 		if (::ioctl(m_fd_demux, DMX_SET_PES_FILTER, &pes) < 0)
 		{
@@ -397,7 +398,7 @@ int eDVBVideo::startPid(int pid, int type)
 			return -errno;
 		}
 		eDebugNoNewLine("ok");
-if not defined(__sh__) // already startet cause of DMX_IMMEDIATE_START
+#if not defined(__sh__) // already startet cause of DMX_IMMEDIATE_START
 		eDebugNoNewLineStart("[eDVBVideo] DEMUX_START - video - ");
 		if (::ioctl(m_fd_demux, DMX_START) < 0)
 		{
@@ -410,8 +411,6 @@ if not defined(__sh__) // already startet cause of DMX_IMMEDIATE_START
 
 	if (m_fd >= 0)
 	{
-#if not defined(__sh__) // this is a hack which only matters for dm drivers
-		freeze();  // why freeze here?!? this is a problem when only a pid change is requested... because of the unfreeze logic in Decoder::setState
 		eDebugNoNewLineStart("[eDVBVideo] VIDEO_PLAY - ");
 		if (::ioctl(m_fd, VIDEO_PLAY) < 0)
 			eDebugNoNewLine("failed (%m)");

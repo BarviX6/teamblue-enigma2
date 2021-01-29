@@ -16,73 +16,43 @@ class VideoHardware:
 
 	modes = { }  # a list of (high-level) modes for a certain port.
 
-	rates["PAL"] =			{ "50Hz":		{ 50: "pal" },
-								"60Hz": 	{ 60: "pal60" },
-								"multi": 	{ 50: "pal", 60: "pal60" } }
+	rates["PAL"] =			{ "50Hz":	{ 50: "pal" } }
 
-	rates["NTSC"] =			{ "60Hz": 	{ 60: "ntsc" } }
+	rates["576i"] =			{ "50Hz":	{ 50: "576i50" } }
 
-	rates["Multi"] =		{ "multi": 	{ 50: "pal", 60: "ntsc" } }
+	rates["576p"] =			{ "50Hz":	{ 50: "576p50" } }
 
-	rates["480i"] =			{ "60Hz": 	{ 60: "480i" } }
-
-	rates["576i"] =			{ "50Hz": 	{ 50: "576i" } }
-
-	rates["480p"] =			{ "60Hz": 	{ 60: "480p" } }
-
-	rates["576p"] =			{ "50Hz": 	{ 50: "576p" } }
-
-	rates["720p"] =			{ "50Hz": 	{ 50: "720p50" },
-								"60Hz": 	{ 60: "720p" },
-								"multi": 	{ 50: "720p50", 60: "720p" },
-								"auto":		{ 50: "720p50", 60: "720p", 24: "720p24" } }
+	rates["720p"] =			{ "50Hz":	{ 50: "720p50" },
+					  "60Hz":	{ 60: "720p60" } }
 
 	rates["1080i"] =		{ "50Hz":	{ 50: "1080i50" },
-								"60Hz":		{ 60: "1080i" },
-								"multi":	{ 50: "1080i50", 60: "1080i" },
-								"auto":		{ 50: "1080i50", 60: "1080i", 24: "1080p24" } }
+					  "60Hz":	{ 60: "1080i60" } }
 
-	rates["1080p"] =		{ "50Hz":	{ 50: "1080p50" },
-								"60Hz":		{ 60: "1080p" },
-								"multi":	{ 50: "1080p50", 60: "1080p" },
-								"auto":		{ 50: "1080p50", 60: "1080p", 24: "1080p24" } }
-
-	rates["2160p30"] =		{ "25Hz":	{ 50: "2160p25" },
-								"30Hz":		{ 60: "2160p30" },
-								"multi":	{ 50: "2160p25", 60: "2160p30" },
-								"auto":		{ 50: "2160p25", 60: "2160p30", 24: "2160p24" } }
-
-	rates["2160p"] =		{ "50Hz":	{ 50: "2160p50" },
-								"60Hz":		{ 60: "2160p" },
-								"multi":	{ 50: "2160p50", 60: "2160p" }, 
-								"auto":		{ 50: "2160p50", 60: "2160p", 24: "2160p24" }}
+	rates["1080p"] =		{ "23Hz":	{ 50: "1080p23" },
+					  "24Hz":	{ 60: "1080p24" },
+					  "25Hz":	{ 60: "1080p25" },
+					  "29Hz":	{ 60: "1080p29" },
+					  "30Hz":	{ 60: "1080p30" },
+					  "50Hz":	{ 60: "1080p50" },
+					  "60Hz":	{ 60: "1080p60" } }
 
 	rates["PC"] = {
-		"1024x768": { 60: "1024x768" }, # not possible on DM7025
-		"800x600" : { 60: "800x600" }, # also not possible
-		"720x480" : { 60: "720x480" },
-		"720x576" : { 60: "720x576" },
-		"1280x720": { 60: "1280x720" },
-		"1280x720 multi": { 50: "1280x720_50", 60: "1280x720" },
-		"1920x1080": { 60: "1920x1080"},
-		"1920x1080 multi": { 50: "1920x1080", 60: "1920x1080_50" },
-		"1280x1024" : { 60: "1280x1024"},
-		"1366x768" : { 60: "1366x768"},
-		"1366x768 multi" : { 50: "1366x768", 60: "1366x768_50" },
-		"1280x768": { 60: "1280x768" },
-		"640x480" : { 60: "640x480" } }
+		"1024x768"  : { 60: "1024x768_60", 70: "1024x768_70", 75: "1024x768_75", 90: "1024x768_90", 100: "1024x768_100" }, #43 60 70 72 75 90 100
+		"1280x1024" : { 60: "1280x1024_60", 70: "1280x1024_70", 75: "1280x1024_75" }, #43 47 60 70 74 75
+		"1600x1200" : { 60: "1600x1200_60" }, #60 66 76
+	}
 
 	if SystemInfo["HasScart"]:
-		modes["Scart"] = ["PAL", "NTSC", "Multi"]
-	elif SystemInfo["HasComposite"]:
-		modes["RCA"] = ["576i", "PAL", "NTSC", "Multi"]
+		modes["Scart"] = ["PAL"]
+#	elif SystemInfo["HasComposite"]:
+#		modes["RCA"] = ["576i", "PAL", "NTSC", "Multi"]
 	if SystemInfo["HasYPbPr"]:
-		modes["YPbPr"] = ["720p", "1080i", "576p", "480p", "576i", "480i"]
-	if SystemInfo["Has2160p"]:
-		modes["DVI"] = ["720p", "1080p", "2160p", "1080i", "576p", "480p", "576i", "480i"]
-	else:
-		modes["DVI"] = ["720p", "1080p", "2160p", "2160p30", "1080i", "576p", "480p", "576i", "480i"]
-	modes["DVI-PC"] = ["PC"]
+		modes["Component"] = ["720p", "1080p", "1080i", "576p", "576i"]
+#	if SystemInfo["Has2160p"]:
+#		modes["DVI"] = ["720p", "1080p", "2160p", "1080i", "576p", "480p", "576i", "480i"]
+#	else:
+	modes["HDMI"] = ["720p", "1080p", "1080i", "576p", "576i"]
+	modes["HDMI-PC"] = ["PC"]
 
 	def getOutputAspect(self):
 		ret = (16,9)
@@ -120,7 +90,7 @@ class VideoHardware:
 
 		self.readAvailableModes()
 		self.readPreferredModes()
-		self.widescreen_modes = set(["720p", "1080i", "1080p", "2160p", "2160p30"]).intersection(*[self.modes_available])
+		self.widescreen_modes = set(["576i", "576p", "720p", "1080i", "1080p", "2160p30"]).intersection(*[self.modes_available])
 
 		if "DVI-PC" in self.modes and not self.getModeList("DVI-PC"):
 			print "[VideoHardware] remove DVI-PC because of not existing modes"
@@ -225,6 +195,9 @@ class VideoHardware:
 				open("/proc/stb/video/videomode_24hz", "w").write(mode_24)
 			except IOError:
 				print "[VideoHardware] cannot open /proc/stb/video/videomode_24hz"
+		#call setResolution() with -1,-1 to read the new screen dimensions without changing the framebuffer resolution
+		from enigma import gMainDC
+		gMainDC.getInstance().setResolution(-1, -1)
 
 		self.updateAspect(None)
 
@@ -349,9 +322,9 @@ class VideoHardware:
 				aspect = "16:9"
 			else:
 				aspect = {"16_9": "16:9", "16_10": "16:10"}[config.av.aspect.value]
-			policy_choices = {"pillarbox": "panscan", "panscan": "letterbox", "nonlinear": "nonlinear", "scale": "bestfit", "bestfit": "bestfit", "letterbox": "letterbox", "full": "full", "auto": "auto"}
+			policy_choices = {"pillarbox": "letterbox", "panscan": "panscan", "nonlinear": "nonlinear", "scale": "bestfit", "auto": "bestfit"}
 			policy = policy_choices[config.av.policy_43.value]
-			policy2_choices = {"letterbox": "letterbox", "panscan": "panscan", "nonlinear": "nonlinear", "scale": "bestfit", "bestfit": "bestfit", "full": "full", "auto": "auto"}
+			policy2_choices = {"letterbox": "letterbox", "panscan": "panscan", "scale": "bestfit", "full": "full", "auto": "auto"}
 			policy2 = policy2_choices[config.av.policy_169.value]
 		elif is_auto:
 			aspect = "any"

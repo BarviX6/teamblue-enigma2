@@ -10,6 +10,7 @@ from Components.SystemInfo import SystemInfo
 
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 from Tools.HardwareInfo import HardwareInfo
+from enigma import evfd
 
 config.misc.showtestcard = ConfigBoolean(default = False)
 
@@ -21,7 +22,7 @@ except:
 	chipset = "unknown"
 
 has_rca = False
-if getBoxType() in ('mutant51', 'ax51', 'gb800seplus', 'gb800ueplus', 'gbquad', 'gbquadplus', 'gbipbox', 'gbultra', 'gbultraue', 'gbultraueh', 'gbultrase', 'spycat', 'quadbox2400', 'gbx1', 'gbx2', 'gbx3', 'gbx3h', 'gbx34k'):
+if getBoxType() in ('mutant51', 'ax51', 'spark', 'gb800seplus', 'gb800ueplus', 'gbquad', 'gbquadplus', 'gbipbox', 'gbultra', 'gbultraue', 'gbultraueh', 'gbultrase', 'spycat', 'quadbox2400', 'gbx1', 'gbx2', 'gbx3', 'gbx3h', 'gbx34k'):
 	has_rca = True
 
 class VideoWizardSummary(WizardSummary):
@@ -82,6 +83,7 @@ class VideoWizard(WizardLanguage, Rc):
 		config.misc.videowizardenabled.value = 0
 		config.misc.videowizardenabled.save()
 		configfile.save()
+		evfd.getInstance().vfd_write_string("                ")
 
 	def listInputChannels(self):
 		hw_type = HardwareInfo().get_device_name()

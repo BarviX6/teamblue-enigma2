@@ -823,6 +823,7 @@ int eDVBTText::startPid(int pid)
 		return -errno;
 	}
 	eDebugNoNewLine("ok");
+#endif	
 	return 0;
 }
 

@@ -179,6 +179,10 @@ class About(Screen):
 		GStreamerVersion = _("GStreamer: ") + about.getGStreamerVersionString(cpu).replace("GStreamer","")
 		self["GStreamerVersion"] = StaticText(GStreamerVersion)
 		AboutText += GStreamerVersion + "\n"
+		
+		FFmpegVersion = _("FFmpeg version: ") + about.getFFmpegVersionString()
+		self["FFmpegVersion"] = StaticText(FFmpegVersion)
+		AboutText += FFmpegVersion + "\n"		
 
 		twisted = popen('opkg list-installed  |grep -i python-twisted-core').read().strip().split(' - ')[1]
 		AboutText += "Python-Twisted: " + str(twisted) + "\n"

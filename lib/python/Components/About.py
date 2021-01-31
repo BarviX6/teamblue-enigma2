@@ -43,6 +43,15 @@ def getGStreamerVersionString(cpu):
 		return "%s" % gst[1].split("+")[0].replace("\n","")
 	except:
 		return _("Not Required") if cpu.upper().startswith('HI') else _("Not Installed")
+		
+def getFFmpegVersionString():
+	try:
+		from glob import glob
+		ffmpeg = [x.split("Version: ") for x in open(glob("/var/lib/opkg/info/ffmpeg.control")[0], "r") if x.startswith("Version:")][0]
+		version = ffmpeg[1].split("-")[0].replace("\n","")
+		return "%s" % version.split("+")[0]
+	except:
+		return _("unknown")		
 
 def getKernelVersionString():
 	try:

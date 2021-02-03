@@ -52,11 +52,12 @@ class FrontendInfo(Converter):
 			if count is not None:
 				return str(count)
 			else:
-				return _("N/A")
+				return
 		elif self.type == self.AGC:
 			percent = self.source.agc
-		elif (self.type == self.SNR and swapsnr) or (self.type == self.SNRdB and not swapsnr):
-			percent = self.source.snr
+		elif (self.type == self.SNR and not swapsnr) or (self.type == self.SNRdB and swapsnr):
+			if self.source.snr is not None:
+				percent = self.source.snr
 		elif self.type == self.SNR or self.type == self.SNRdB:
 			if self.source.snr_db is not None:
 				return _("%3.01f dB") % (self.source.snr_db / 100.0)
@@ -67,12 +68,12 @@ class FrontendInfo(Converter):
 		elif self.type == self.STRING:
 			string = ""
 			for n in nimmanager.nim_slots:
-				if n.type:
+				if n.enabled:
 					if n.slot == self.source.slot_number:
 						color = Hex2strColor(colors[0])
 					elif self.source.tuner_mask & 1 << n.slot:
 						color = Hex2strColor(colors[1])
-					elif len(nimmanager.nim_slots) <= self.space_for_tuners or self.show_all_non_link_tuners and not (n.isFBCLink() or n.internally_connectable):
+					elif len(nimmanager.nim_slots) <= self.space_for_tuners or n.isFBCRoot() or self.show_all_non_link_tuners and not(n.isFBCLink() or n.internally_connectable):
 						color = Hex2strColor(colors[2])
 					else:
 						continue
@@ -80,10 +81,10 @@ class FrontendInfo(Converter):
 						string += " "
 					string += color + chr(ord("A")+n.slot)
 			return string
-		if self.type == self.USE_TUNERS_STRING:
+		elif self.type == self.USE_TUNERS_STRING:
 			string = ""
 			for n in nimmanager.nim_slots:
-				if n.type:
+				if n.enabled:
 					if n.slot == self.source.slot_number:
 						color = Hex2strColor(colors[0])
 					elif self.source.tuner_mask & 1 << n.slot:
@@ -95,7 +96,7 @@ class FrontendInfo(Converter):
 					string += color + chr(ord("A") + n.slot)
 			return string
 		if percent is None:
-			return _("N/A")
+			return
 		return "%d %%" % (percent * 100 / 65535)
 
 	@cached

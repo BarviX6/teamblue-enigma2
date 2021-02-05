@@ -52,12 +52,11 @@ class FrontendInfo(Converter):
 			if count is not None:
 				return str(count)
 			else:
-				return
+				return _("N/A")
 		elif self.type == self.AGC:
 			percent = self.source.agc
 		elif (self.type == self.SNR and not swapsnr) or (self.type == self.SNRdB and swapsnr):
-			if self.source.snr is not None:
-				percent = self.source.snr
+			percent = self.source.snr
 		elif self.type == self.SNR or self.type == self.SNRdB:
 			if self.source.snr_db is not None:
 				return _("%3.01f dB") % (self.source.snr_db / 100.0)
@@ -81,7 +80,7 @@ class FrontendInfo(Converter):
 						string += " "
 					string += color + chr(ord("A")+n.slot)
 			return string
-		elif self.type == self.USE_TUNERS_STRING:
+		if self.type == self.USE_TUNERS_STRING:
 			string = ""
 			for n in nimmanager.nim_slots:
 				if n.enabled:
@@ -96,22 +95,25 @@ class FrontendInfo(Converter):
 					string += color + chr(ord("A") + n.slot)
 			return string
 		if percent is None:
-			return
+			return _("N/A")
 		return "%d %%" % (percent * 100 / 65535)
 
 	@cached
 	def getBool(self):
-		assert self.type in (self.LOCK, self.BER), "the boolean output of FrontendInfo can only be used for lock or BER info"
+		assert self.type in (self.LOCK, self.BER, self.SNR, self.SNRdB, self.AGC), "the boolean output of FrontendInfo can only be used for lock, BER, SNR, SNRdB or AGC info"
 		if self.type == self.LOCK:
 			lock = self.source.lock
 			if lock is None:
 				lock = False
 			return lock
-		else:
-			ber = self.source.ber
-			if ber is None:
-				ber = 0
-			return ber > 0
+		elif self.type == self.BER:
+			return self.source.ber is not None
+		elif self.type == self.SNR:
+			return self.source.snr is not None
+		elif self.type == self.SNRdB:
+			return self.source.snr_db is not None
+		elif self.type == self.AGC:
+			return self.source.agc is not None
 
 	text = property(getText)
 

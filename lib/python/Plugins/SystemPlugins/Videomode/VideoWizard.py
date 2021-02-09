@@ -170,8 +170,6 @@ class VideoWizard(WizardLanguage, Rc):
 			print "[VideoWizard] mode:", mode
 			if mode[0] == querymode:
 				for rate in mode[1]:
-					if rate in ("auto") and not SystemInfo["Has24hz"]:
-						continue
 					if self.port == "DVI-PC":
 						print "[VideoWizard] rate:", rate
 						if rate == "640x480":

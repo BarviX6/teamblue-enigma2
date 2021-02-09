@@ -109,6 +109,14 @@ class VideoSetup(Screen, ConfigListScreen):
 					self.list.append(getConfigListEntry(_("Allow 12bit"), config.av.allow_12bit,_("This option allows you to enable or disable the 12 bit color mode")))
 					self.list.append(getConfigListEntry(_("Allow 10bit"), config.av.allow_10bit,_("This option allows you to enable or disable the 10 bit color mode")))
 
+#+++>
+		if config.av.videoport.value == "Component":
+			self.list.append(getConfigListEntry(_("Color Format"), config.av.colorformat_yuv))
+
+		if config.av.videoport.value == "HDMI":
+			self.list.append(getConfigListEntry(_("Color Format"), config.av.colorformat_hdmi))
+#+++>
+
 		if config.av.videoport.value == "Scart":
 			self.list.append(getConfigListEntry(_("Color format"), config.av.colorformat, _("Configure which color format should be used on the SCART output.")))
 			if level >= 1:

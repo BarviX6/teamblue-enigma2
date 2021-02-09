@@ -108,6 +108,13 @@ class VideoHardware:
 		config.av.wss.notifiers = [ ]
 		AVSwitch.getOutputAspect = self.getOutputAspect
 
+#+++>
+		config.av.colorformat_hdmi = ConfigSelection(choices = {"hdmi_rgb": _("RGB"), "hdmi_yuv": _("YUV"), "hdmi_422": _("422")}, default="hdmi_rgb")
+		config.av.colorformat_yuv = ConfigSelection(choices = {"yuv": _("YUV")}, default="yuv")
+		config.av.colorformat_hdmi.addNotifier(self.setHDMIColor)
+		config.av.colorformat_yuv.addNotifier(self.setYUVColor)
+#+++<
+
 		config.av.aspect.addNotifier(self.updateAspect)
 		config.av.wss.addNotifier(self.updateAspect)
 		config.av.policy_169.addNotifier(self.updateAspect)
@@ -144,9 +151,8 @@ class VideoHardware:
 	def isModeAvailable(self, port, mode, rate):
 		rate = self.rates[mode][rate]
 		for mode in rate.values():
-			if port == "DVI":
-				if mode not in self.modes_preferred:
-					return False
+			if port == "HDMI-PC":
+				return True
 			else:
 				if mode not in self.modes_available:
 					return False
@@ -200,6 +206,7 @@ class VideoHardware:
 		gMainDC.getInstance().setResolution(-1, -1)
 
 		self.updateAspect(None)
+		self.updateColor(port)		
 
 	def saveMode(self, port, mode, rate):
 		print "[VideoHardware] saveMode", port, mode, rate
@@ -217,7 +224,8 @@ class VideoHardware:
 		return True
 
 	def isPortUsed(self, port):
-		if port == "DVI":
+#		if port == "DVI":
+		if port == "HDMI":
 			self.readPreferredModes()
 			return len(self.modes_preferred) != 0
 		else:
@@ -263,9 +271,11 @@ class VideoHardware:
 			for (mode, rates) in modes:
 				ratelist = []
 				for rate in rates:
-					if rate in ("auto") and not SystemInfo["Has24hz"]:
-						continue
-					ratelist.append((rate, rate))
+					if rate in ("auto"):
+						if SystemInfo["Has24hz"]:
+							ratelist.append((rate, rate))
+					else:
+						ratelist.append((rate, rate))
 				config.av.videorate[mode] = ConfigSelection(choices = ratelist)
 		config.av.videoport = ConfigSelection(choices = lst)
 
@@ -352,6 +362,25 @@ class VideoHardware:
 			open("/proc/stb/video/policy2", "w").write(policy2)
 		except IOError:
 			pass
+
+	def setHDMIColor(self, configElement):
+		map = {"hdmi_rgb": 0, "hdmi_yuv": 1, "hdmi_422": 2}
+		open("/proc/stb/avs/0/colorformat", "w").write(configElement.value)
+
+	def setYUVColor(self, configElement):
+		map = {"yuv": 0}
+		open("/proc/stb/avs/0/colorformat", "w").write(configElement.value)
+
+	def updateColor(self, port):
+		print "updateColor: ", port
+		if port == "HDMI":
+			self.setHDMIColor(config.av.colorformat_hdmi)
+		elif port == "Component":
+			self.setYUVColor(config.av.colorformat_yuv)
+		elif port == "Scart":
+			map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
+			from enigma import eAVSwitch
+			eAVSwitch.getInstance().setColorFormat(map[config.av.colorformat.value])
 
 video_hw = VideoHardware()
 video_hw.setConfiguredMode()

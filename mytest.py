@@ -479,7 +479,7 @@ from time import time, localtime, strftime
 from Tools.StbHardware import setFPWakeuptime, setRTCtime
 
 def autorestoreLoop():
-	# Check if auto restore settings fails, just start the wizard (avoid a endless loop) 
+	# Check if auto restore settings fails, just start the wizard (avoid a endless loop)
 	count = 0
 	if os.path.exists("/media/hdd/images/config/autorestore"):
 		f = open("/media/hdd/images/config/autorestore", "r")
@@ -494,7 +494,7 @@ def autorestoreLoop():
 	f = open("/media/hdd/images/config/autorestore", "w")
 	f.write(str(count))
 	f.close()
-	return True		
+	return True
 
 def runScreenTest():
 	config.misc.startCounter.value += 1
@@ -554,7 +554,7 @@ def runScreenTest():
 	vol = VolumeControl(session)
 	profile("Init:PowerKey")
 	power = PowerKey(session)
-	
+
 	# we need session.scart to access it from within menu.xml
 	session.scart = AutoScartControl(session)
 
@@ -648,7 +648,7 @@ profile("AVSwitch")
 import Components.AVSwitch
 Components.AVSwitch.InitAVSwitch()
 
- 
+
 profile("HdmiRecord")
 import Components.HdmiRecord
 Components.HdmiRecord.InitHdmiRecord()

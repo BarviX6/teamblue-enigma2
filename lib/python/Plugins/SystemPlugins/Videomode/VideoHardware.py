@@ -206,7 +206,7 @@ class VideoHardware:
 		gMainDC.getInstance().setResolution(-1, -1)
 
 		self.updateAspect(None)
-		self.updateColor(port)		
+		self.updateColor(port)
 
 	def saveMode(self, port, mode, rate):
 		print "[VideoHardware] saveMode", port, mode, rate

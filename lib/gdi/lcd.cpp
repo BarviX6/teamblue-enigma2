@@ -457,7 +457,7 @@ void eDBoxLCD::update()
 #else
 				uint16_t col16 = *((uint16_t*)(((uint16_t*)buf16) + y * width + x));
 #endif
-				uint8_t red, green, blue, alpha; 
+				uint8_t red, green, blue, alpha;
 				uint32_t color32;
 
 				/* BBBBB GGGGGG RRRRR */

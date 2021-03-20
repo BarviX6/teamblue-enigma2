@@ -20,7 +20,7 @@
  *
  ****************************************************************************
  *
- * VFD/LED driver for enigma2.
+ * VFD/LED front panel driver for enigma2.
  *
  ****************************************************************************
  *
@@ -46,6 +46,7 @@
  * 20200508 Audioniek       pace7241 added.
  * 20200719 Audioniek       hl101, vip1_v2 and vip2_v1 added.
  * 20200828 Audioniek       Add vip1_v1, rename vip2.
+ * 20201115 Audioniek       Add opt9600.
  *
  ****************************************************************************/
 #include <stdarg.h>
@@ -146,6 +147,8 @@ evfd::evfd()
 	vfd_type = 18;
 #elif defined (ENABLE_PACE7241)
 	vfd_type = 19;
+#elif defined (ENABLE_OPT9600)
+	vfd_type = 20;
 #else
 	vfd_type = -1;
 #endif
@@ -335,6 +338,8 @@ void *start_loop(void *arg)
 		char str[] = "VIP1_2 E2";
 	#elif defined (ENABLE_VIP2)
 		char str[] = "VIP2 E2";
+	#elif defined (ENABLE_OPT9600)
+		char str[] = "HD 9600 Enigma2";
 	#else
 		char str[] = "E2";
 	#endif
@@ -343,43 +348,33 @@ void *start_loop(void *arg)
 	close(vfddev);
 
 	/* These boxes can control display brightness */
-	#if !defined (ENABLE_FORTIS_HDBOX) \
-	 && !defined (ENABLE_OCTAGON1008) \
-	 && !defined (ENABLE_ATEVIO7500) \
-	 && !defined (ENABLE_CUBEREVO) \
-	 && !defined (ENABLE_CUBEREVO_MINI) \
-	 && !defined (ENABLE_CUBEREVO_MINI2) \
-	 && !defined (ENABLE_CUBEREVO_MINI_FTA) \
-	 && !defined (ENABLE_CUBEREVO_250HD) \
-	 && !defined (ENABLE_CUBEREVO_2000HD) \
-	 && !defined (ENABLE_CUBEREVO_3000HD) \
-	 && !defined (ENABLE_CUBEREVO_9500HD) \
-	 && !defined (ENABLE_SPARK7162) \
-	 && !defined (ENABLE_UFS912) \
-	 && !defined (ENABLE_UFS913) \
-	 && !defined (ENABLE_HS7119) \
-	 && !defined (ENABLE_HS7420) \
-	 && !defined (ENABLE_HS7429) \
-	 && !defined (ENABLE_HS7810A) \
-	 && !defined (ENABLE_HS7819) \
-	 && !defined (ENABLE_VITAMIN_HD5000) \
-	 && !defined (ENABLE_ADB_BOX) \
-	 && !defined (ENABLE_PACE7241) \
-	 && !defined (ENABLE_HL101) \
-	 && !defined (ENABLE_VIP1_V1) \
-	 && !defined (ENABLE_VIP1_V2) \
-	 && !defined (ENABLE_VIP2)
-	/* Others cycle their icons */
-	for (int vloop = 0; vloop < 128; vloop++)
-	{
-		if (vloop % 2 == 1)
-		{
-			vfd.vfd_set_icon((((vloop % 32) / 2) % 16), ICON_OFF, true);
-			usleep(2000);
-			vfd.vfd_set_icon(((((vloop % 32) / 2) % 16) + 1), ICON_ON, true);
-		}
-	}
-	#else // Modulate brightness 3 times
+	#if defined (ENABLE_FORTIS_HDBOX) \
+	 && defined (ENABLE_OCTAGON1008) \
+	 && defined (ENABLE_ATEVIO7500) \
+	 && defined (ENABLE_CUBEREVO) \
+	 && defined (ENABLE_CUBEREVO_MINI) \
+	 && defined (ENABLE_CUBEREVO_MINI2) \
+	 && defined (ENABLE_CUBEREVO_MINI_FTA) \
+	 && defined (ENABLE_CUBEREVO_250HD) \
+	 && defined (ENABLE_CUBEREVO_2000HD) \
+	 && defined (ENABLE_CUBEREVO_3000HD) \
+	 && defined (ENABLE_CUBEREVO_9500HD) \
+	 && defined (ENABLE_SPARK7162) \
+	 && defined (ENABLE_UFS912) \
+	 && defined (ENABLE_UFS913) \
+	 && defined (ENABLE_HS7119) \
+	 && defined (ENABLE_HS7420) \
+	 && defined (ENABLE_HS7429) \
+	 && defined (ENABLE_HS7810A) \
+	 && defined (ENABLE_HS7819) \
+	 && defined (ENABLE_VITAMIN_HD5000) \
+	 && defined (ENABLE_ADB_BOX) \
+	 && defined (ENABLE_PACE7241) \
+	 && defined (ENABLE_HL101) \
+	 && defined (ENABLE_VIP1_V1) \
+	 && defined (ENABLE_VIP1_V2) \
+	 && defined (ENABLE_VIP2)
+	// Modulate brightness 3 times
 	for (int vloop = 0; vloop < 3 * 14; vloop++)
 	{
 		if (vloop % 14 == 0)
@@ -440,10 +435,23 @@ void *start_loop(void *arg)
 		}
 		usleep(75000);
 	}
-	vfd.vfd_set_brightness(7); // set final brightness
-	#endif
-
+	vfd.vfd_set_brightness(7);  // set final brightness
+	#else
+	/* Others cycle their icons */
+		#if !(ICON_MAX == -1)
+	for (int vloop = 0; vloop < 128; vloop++)
+	{
+		if (vloop % 2 == 1)
+		{
+			vfd.vfd_set_icon((((vloop % 32) / 2) % 16), ICON_OFF, true);
+			usleep(2000);
+			vfd.vfd_set_icon(((((vloop % 32) / 2) % 16) + 1), ICON_ON, true);
+		}
+	}
 	vfd.vfd_clear_icons();
+		#endif // !(ICON_MAX == -1)
+	#endif  // ENABLE_FORTIS_HDBOX
+
 	#if !defined (ENABLE_FORTIS_HDBOX) \
 	 && !defined (ENABLE_OCTAGON1008) \
 	 && !defined (ENABLE_ATEVIO7500) \
@@ -462,17 +470,18 @@ void *start_loop(void *arg)
 	 && !defined (ENABLE_HL101) \
 	 && !defined (ENABLE_VIP1_V1) \
 	 && !defined (ENABLE_VIP1_V2) \
-	 && !defined (ENABLE_VIP2)
+	 && !defined (ENABLE_VIP2) \
+	 && !defined (ENABLE_OPT9600)
 	// Set all blocked icons
 	for (int id = 0x10; id < 0x20; id++)
 	{
 		vfd.vfd_set_icon(id, icon_onoff[id]);
 	}
-#endif
+    #endif
 	blocked = false;
 	return NULL;
 }
-#endif
+#endif  // ENABLE_TF7700
 
 // These models handle display scrolling in a separate thread
 #if defined (ENABLE_FORTIS_HDBOX) \
@@ -499,7 +508,8 @@ void *start_loop(void *arg)
  || defined (ENABLE_HL101) \
  || defined (ENABLE_VIP1_V1) \
  || defined (ENABLE_VIP1_V2) \
- || defined (ENABLE_VIP2)
+ || defined (ENABLE_VIP2) \
+ || defined (ENABLE_OPT9600)
 void evfd::vfd_write_string_scrollText(char *text)
 {
 	return;
@@ -596,9 +606,12 @@ static void *vfd_write_string_scrollText1(void *arg)
 	int i, len;
 	evfd vfd;
 
+
 	scroll_loop = true;
 	len = strlen((char *)g_str);
 	memset(out, ' ', VFDLENGTH + 1);
+
+	printf("%s: Text: [%s], len=%d\n", __func__, g_str, len);
 	while (scroll_loop && (len > VFDLENGTH))
 	{
 		if (blocked)
@@ -609,27 +622,31 @@ static void *vfd_write_string_scrollText1(void *arg)
 		{
 			scroll_loop = false;
 		}
-		for (i = 0; i <= (len - VFDLENGTH); i++)  // scroll part 1: write full string scrolling and wait 0.75s between scrolls
+//		for (i = 0; i <= (len - VFDLENGTH); i++)  // scroll part 1: write full string scrolling and wait 0.75s between scrolls
+//		{
+//			if (blocked)
+//			{
+//				memset(out, ' ', VFDLENGTH);  // fill buffer with spaces
+//				memcpy(out, g_str + i, VFDLENGTH);  // then put string in
+//				out[VFDLENGTH] = 0;  // terminate string
+//				printf("%s Scroll #%d, Text: [%s], len=%d\n", __func__, i + 1, out, VFDLENGTH); 
+//				vfd.vfd_write_string(out, true);  // print string on VFD
+//				usleep(750000);  // 0.75 sec character delay
+//			}
+//			else
+//			{
+//				scroll_loop = false;
+//				i = len - VFDLENGTH;
+//			}
+//		}
+		for (i = 0; i < len; i++)
 		{
 			if (blocked)
 			{
 				memset(out, ' ', VFDLENGTH);  // fill buffer with spaces
-				memcpy(out, g_str + i, VFDLENGTH);  // then put string in
-				vfd.vfd_write_string(out, true);  // print string on VFD
-				usleep(750000);  // 0.75 sec character delay
-			}
-			else
-			{
-				scroll_loop = false;
-				i = len - VFDLENGTH;
-			}
-		}
-		for (i = 1; i <= VFDLENGTH; i++)  // scroll part 2: write full string shifted 1 character scrolling and wait 0.75s between scrolls
-		{
-			if (blocked)
-			{
-				memset(out, ' ', VFDLENGTH);  // fill buffer with spaces
-				memcpy(out, g_str + len + i - VFDLENGTH, VFDLENGTH - i);  // copy string shifted 1 character
+				memcpy(out, g_str + i, (len - i > VFDLENGTH ? VFDLENGTH : len - i));  // copy string shifted i character(s)
+				out[VFDLENGTH] = 0;  // terminate string
+				printf("%s Scroll #%d, Text: [%s], len=%d\n", __func__, i, out, (len - i > VFDLENGTH ? VFDLENGTH : len - i)); 
 				vfd.vfd_write_string(out, true);
 				usleep(750000);  // 0.75 sec character delay
 			}
@@ -640,6 +657,8 @@ static void *vfd_write_string_scrollText1(void *arg)
 			}
 		}
 		memcpy(out, g_str, VFDLENGTH);
+		out[VFDLENGTH] = 0;  // terminate string
+		printf("%s Final display Text: [%s], len=%d\n", __func__, out, VFDLENGTH); 
 		vfd.vfd_write_string(out, true);  // final display: write 1st VFDLENGTH characters
 		if (VFD_SCROLL != 2 || !blocked)
 		{

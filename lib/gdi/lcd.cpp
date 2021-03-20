@@ -100,7 +100,7 @@ eDBoxLCD::eDBoxLCD()
 		lcd_type = 1;
 
 	if (lcdfd < 0)
-		eDebug("[eLCD] No oled0 or lcd0 device found!");
+		eDebug("[eDboxLCD] No oled0 or lcd0 device found!");
 	else
 	{
 
@@ -136,7 +136,10 @@ eDBoxLCD::eDBoxLCD()
 			}
 			lcd_type = 3;
 		}
-		eDebug("[eLCD] xres=%d, yres=%d, bpp=%d lcd_type=%d", xres, yres, bpp, lcd_type);
+		eDebug("[eDboxLCD] xres=%d, yres=%d, bpp=%d lcd_type=%d", xres, yres, bpp, lcd_type);
+
+		instance = this;
+		setSize(xres, yres, bpp);
 	}
 #endif
 	instance = this;
@@ -169,17 +172,17 @@ int eDBoxLCD::setLCDContrast(int contrast)
 #define LCDSET                  0x1000
 #define	LCD_IOCTL_SRV			(10|LCDSET)
 #endif
-	eDebug("[eLCD] setLCDContrast %d", contrast);
+	eDebug("[eDboxLCD] setLCDContrast %d", contrast);
 
 	int fp;
 	if((fp = open("/dev/dbox/fp0", O_RDWR)) < 0)
 	{
-		eDebug("[eLCD] can't open /dev/dbox/fp0: %m");
+		eDebug("[eDboxLCD] can't open /dev/dbox/fp0: %m");
 		return(-1);
 	}
 
 	if(ioctl(lcdfd, LCD_IOCTL_SRV, &contrast) < 0)
-		eDebug("[eLCD] can't set lcd contrast: %m");
+		eDebug("[eDboxLCD] can't set lcd contrast: %m");
 	close(fp);
 #endif
 	return(0);
@@ -191,14 +194,14 @@ int eDBoxLCD::setLCDBrightness(int brightness)
 	if (lcdfd < 0)
 		return(0);
 
-	eDebug("[eLCD] setLCDBrightness %d", brightness);
+	eDebug("[eDboxLCD] setLCDBrightness %d", brightness);
 	FILE *f = fopen("/proc/stb/lcd/oled_brightness", "w");
 	if (!f)
 		f = fopen("/proc/stb/fp/oled_brightness", "w");
 	if (f)
 	{
 		if (fprintf(f, "%d", brightness) == 0)
-			eDebug("[eLCD] write /proc/stb/lcd|fp/oled_brightness failed: %m");
+			eDebug("[eDboxLCD] write /proc/stb/lcd|fp/oled_brightness failed: %m");
 		fclose(f);
 	}
 	else
@@ -206,40 +209,17 @@ int eDBoxLCD::setLCDBrightness(int brightness)
 		int fp;
 		if ((fp = open("/dev/dbox/fp0", O_RDWR)) < 0)
 		{
-			eDebug("[eLCD] can't open /dev/dbox/fp0: %m");
+			eDebug("[eDboxLCD] can't open /dev/dbox/fp0: %m");
 			return(-1);
 		}
 #ifndef FP_IOCTL_LCD_DIMM
 #define FP_IOCTL_LCD_DIMM       3
 #endif
 		if (ioctl(fp, FP_IOCTL_LCD_DIMM, &brightness) < 0)
-			eDebug("[eLCD] can't set lcd brightness: %m");
+			eDebug("[eDboxLCD] can't set lcd brightness: %m");
 		close(fp);
 	}
 #endif
-	return(0);
-}
-
-int eDBoxLCD::setLED(int value, int option)
-{
-	switch(option)
-	{
-		case LED_BRIGHTNESS:
-			eDebug("setLEDNormalState %d", value);
-			if(ioctl(lcdfd, LED_IOCTL_BRIGHTNESS_NORMAL, (unsigned char)value) < 0)
-				eDebug("[LED] can't set led brightness");
-			break;
-		case LED_DEEPSTANDBY:
-			eDebug("setLEDBlinkingTime %d", value);
-			if(ioctl(lcdfd, LED_IOCTL_BRIGHTNESS_DEEPSTANDBY, (unsigned char)value) < 0)
-				eDebug("[LED] can't set led deep standby");
-			break;
-		case LED_BLINKINGTIME:
-			eDebug("setLEDBlinkingTime %d", value);
-			if(ioctl(lcdfd, LED_IOCTL_BLINKING_TIME, (unsigned char)value) < 0)
-				eDebug("[LED] can't set led blinking time");
-			break;
-	}
 	return(0);
 }
 
@@ -341,6 +321,11 @@ void eDBoxLCD::update()
 #endif
 }
 
+void eDBoxLCD::dumpLCD(bool png)
+{
+	return;
+}
+
 #else
 
 void eDBoxLCD::setFlipped(bool onoff)
@@ -357,9 +342,9 @@ eDBoxLCD::eDBoxLCD()
 	eDebug("eDBoxLCD::eDBoxLCD >");
 
 	displayNumber = 0;
-	is_oled = 1;
+	lcd_type = 1;
 
-	instance=this;
+	instance = this;
 
 	if (GLCD::Config.Load("/etc/graphlcd.conf") == false)
 	{
@@ -451,14 +436,14 @@ void eDBoxLCD::update()
 		for (int x = 0; x < width; x++)
 			for (int y = 0; y < height; y++)
 			{
-				uint16_t *buf16  = (uint16_t*) _buffer;
+				__u16 *buf16  = (__u16 *) _buffer;
 #if BYTE_ORDER == LITTLE_ENDIAN
-				uint16_t col16 = bswap_16(*((uint16_t*)(((uint16_t*)buf16) + y * width + x)));
+				__u16 col16 = bswap_16(*((__u16 *)(((__u16*)buf16) + y * width + x)));
 #else
-				uint16_t col16 = *((uint16_t*)(((uint16_t*)buf16) + y * width + x));
+				__u16 col16 = *((__u16*)(((__u16 *)buf16) + y * width + x));
 #endif
-				uint8_t red, green, blue, alpha;
-				uint32_t color32;
+				__u8 red, green, blue, alpha; 
+				__u32 color32;
 
 				/* BBBBB GGGGGG RRRRR */
 				blue  = ((col16 & 0xF800) >> 11) * ( 255 / 31);
@@ -478,8 +463,3 @@ void eDBoxLCD::update()
 	}
 }
 #endif
-
-void eDBoxLCD::dumpLCD(bool png)
-{
-	return;
-}

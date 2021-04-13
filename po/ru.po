@@ -6568,6 +6568,12 @@ msgstr ""
 msgid "Media player"
 msgstr "Медиаплеер"
 
+msgid "Media player: GStreamer, version "
+msgstr "Медиаплеер: GStreamer, версия "
+
+msgid "Media player: ffmpeg, version "
+msgstr "Медиаплеер: ffmpeg, версия "
+
 msgid "Media scanner"
 msgstr "Медиа сканнер"
 
@@ -11508,7 +11514,7 @@ msgstr "TEXT"
 
 #. TRANSLATORS: Add here whatever should be shown in the "translator" about screen, up to 6 lines (use \n for newline)
 msgid "TRANSLATOR_INFO"
-msgstr "Dima-73 <Dima-73@inbox.lv>"
+msgstr "Dimitrij - 24.03.2021"
 
 msgid "TS file is too large for ISO9660 level 1!"
 msgstr "TS файл слишком большой для ISO9660 level 1!"
@@ -11793,14 +11799,6 @@ msgstr "Рестарт GUI для применения выбраного ски
 #, python-format
 msgid "The user interface of your %s %s is restarting"
 msgstr "Перезагрузка интерфейса Вашего %s %s"
-
-#, python-format
-msgid ""
-"The user interface of your %s %s is restarting\n"
-"due to an error in mytest.py"
-msgstr ""
-"Интерфейс Вашего %s %s будет перезагружен\n"
-"по причине ошибки в mytest.py"
 
 msgid "The width of the picture. The input will be scaled to match this value."
 msgstr "Ширина изображения. Вводные данные будут масштабироваться в соответствии с этим значением."
@@ -15351,3 +15349,12 @@ msgstr "перейти и записать"
 
 msgid "zapped"
 msgstr "переключено"
+
+msgid "®"
+msgstr "®"
+
+msgid "Blindscan"
+msgstr "Слепое сканирование"
+
+msgid "Blindscan terrestrial (if possible)"
+msgstr "Наземное слепое сканирование (по возможности)"

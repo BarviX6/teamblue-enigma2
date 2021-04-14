@@ -30,6 +30,7 @@ try:
 except IOError:
 	print "WARNING: couldn't open profile file!"
 
+
 def profile(id):
 	now = time.time() - profile_start
 	if profile_file:
@@ -46,6 +47,7 @@ def profile(id):
 				evfd.getInstance().vfd_write_string("-%02d-" % perc)  # Used for fulan vfd
 			except IOError:
 				pass
+
 
 def profile_final():
 	global profile_file

@@ -9,12 +9,13 @@ import os
 # available and preferred modes, as well as handling the currently
 # selected mode. No other strict checking is done.
 
-config.av.edid_override = ConfigYesNo(default = True)
+config.av.edid_override = ConfigYesNo(default=True)
+
 
 class VideoHardware:
-	rates = { } # high-level, use selectable modes.
+	rates = {} # high-level, use selectable modes.
 
-	modes = { }  # a list of (high-level) modes for a certain port.
+	modes = {}  # a list of (high-level) modes for a certain port.
 
 	rates["PAL"] =			{ "50Hz":	{ 50: "pal" } }
 
@@ -55,7 +56,7 @@ class VideoHardware:
 	modes["HDMI-PC"] = ["PC"]
 
 	def getOutputAspect(self):
-		ret = (16,9)
+		ret = (16, 9)
 		port = config.av.videoport.value
 		if port not in config.av.videomode:
 			print "[VideoHardware] current port not available in getOutputAspect!!! force 16:9"
@@ -70,20 +71,20 @@ class VideoHardware:
 				else:
 					aspect = {"16_9": "16:9", "16_10": "16:10"}[config.av.aspect.value]
 					if aspect == "16:10":
-						ret = (16,10)
+						ret = (16, 10)
 			elif is_auto:
 				try:
 					aspect_str = open("/proc/stb/vmpeg/0/aspect", "r").read()
 					if aspect_str == "1": # 4:3
-						ret = (4,3)
+						ret = (4, 3)
 				except IOError:
 					pass
 			else:  # 4:3
-				ret = (4,3)
+				ret = (4, 3)
 		return ret
 
 	def __init__(self):
-		self.last_modes_preferred =  [ ]
+		self.last_modes_preferred = []
 		self.on_hotplug = CList()
 		self.current_mode = None
 		self.current_port = None
@@ -103,9 +104,9 @@ class VideoHardware:
 
 		# take over old AVSwitch component :)
 		from Components.AVSwitch import AVSwitch
-		config.av.aspectratio.notifiers = [ ]
-		config.av.tvsystem.notifiers = [ ]
-		config.av.wss.notifiers = [ ]
+		config.av.aspectratio.notifiers = []
+		config.av.tvsystem.notifiers = []
+		config.av.wss.notifiers = []
 		AVSwitch.getOutputAspect = self.getOutputAspect
 
 #+++>
@@ -125,7 +126,7 @@ class VideoHardware:
 			modes = open("/proc/stb/video/videomode_choices").read()[:-1]
 		except IOError:
 			print "[VideoHardware] couldn't read available videomodes."
-			self.modes_available = [ ]
+			self.modes_available = []
 			return
 		self.modes_available = modes.split(' ')
 
@@ -161,7 +162,7 @@ class VideoHardware:
 	def isWidescreenMode(self, port, mode):
 		return mode in self.widescreen_modes
 
-	def setMode(self, port, mode, rate, force = None):
+	def setMode(self, port, mode, rate, force=None):
 		print "[VideoHardware] setMode - port:", port, "mode:", mode, "rate:", rate
 		# we can ignore "port"
 		self.current_mode = mode
@@ -237,14 +238,14 @@ class VideoHardware:
 	# get a list with all modes, with all rates, for a given port.
 	def getModeList(self, port):
 		print "[VideoHardware] getModeList for port", port
-		res = [ ]
+		res = []
 		for mode in self.modes[port]:
 			# list all rates which are completely valid
 			rates = [rate for rate in self.rates[mode] if self.isModeAvailable(port, mode, rate)]
 
 			# if at least one rate is ok, add this mode
 			if len(rates):
-				res.append( (mode, rates) )
+				res.append((mode, rates))
 		return res
 
 	def createConfig(self, *args):
@@ -267,17 +268,15 @@ class VideoHardware:
 			# create list of available modes
 			modes = self.getModeList(port)
 			if len(modes):
-				config.av.videomode[port] = ConfigSelection(choices = [mode for (mode, rates) in modes])
+				config.av.videomode[port] = ConfigSelection(choices=[mode for (mode, rates) in modes])
 			for (mode, rates) in modes:
 				ratelist = []
 				for rate in rates:
-					if rate in ("auto"):
-						if SystemInfo["Has24hz"]:
-							ratelist.append((rate, rate))
-					else:
-						ratelist.append((rate, rate))
-				config.av.videorate[mode] = ConfigSelection(choices = ratelist)
-		config.av.videoport = ConfigSelection(choices = lst)
+					if rate in ("auto") and not SystemInfo["Has24hz"]:
+						continue
+					ratelist.append((rate, rate))
+				config.av.videorate[mode] = ConfigSelection(choices=ratelist)
+		config.av.videoport = ConfigSelection(choices=lst)
 
 	def setConfiguredMode(self):
 		port = config.av.videoport.value
@@ -363,24 +362,6 @@ class VideoHardware:
 		except IOError:
 			pass
 
-	def setHDMIColor(self, configElement):
-		map = {"hdmi_rgb": 0, "hdmi_yuv": 1, "hdmi_422": 2}
-		open("/proc/stb/avs/0/colorformat", "w").write(configElement.value)
-
-	def setYUVColor(self, configElement):
-		map = {"yuv": 0}
-		open("/proc/stb/avs/0/colorformat", "w").write(configElement.value)
-
-	def updateColor(self, port):
-		print "updateColor: ", port
-		if port == "HDMI":
-			self.setHDMIColor(config.av.colorformat_hdmi)
-		elif port == "Component":
-			self.setYUVColor(config.av.colorformat_yuv)
-		elif port == "Scart":
-			map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
-			from enigma import eAVSwitch
-			eAVSwitch.getInstance().setColorFormat(map[config.av.colorformat.value])
 
 video_hw = VideoHardware()
 video_hw.setConfiguredMode()

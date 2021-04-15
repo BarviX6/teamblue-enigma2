@@ -362,6 +362,25 @@ class VideoHardware:
 		except IOError:
 			pass
 
+	def setHDMIColor(self, configElement):
+		map = {"hdmi_rgb": 0, "hdmi_yuv": 1, "hdmi_422": 2}
+		open("/proc/stb/avs/0/colorformat", "w").write(configElement.value)
+
+	def setYUVColor(self, configElement):
+		map = {"yuv": 0}
+		open("/proc/stb/avs/0/colorformat", "w").write(configElement.value)
+
+	def updateColor(self, port):
+		print "updateColor: ", port
+		if port == "HDMI":
+			self.setHDMIColor(config.av.colorformat_hdmi)
+		elif port == "Component":
+			self.setYUVColor(config.av.colorformat_yuv)
+		elif port == "Scart":
+			map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
+			from enigma import eAVSwitch
+			eAVSwitch.getInstance().setColorFormat(map[config.av.colorformat.value])
 
 video_hw = VideoHardware()
 video_hw.setConfiguredMode()
+

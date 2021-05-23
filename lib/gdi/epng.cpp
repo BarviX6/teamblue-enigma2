@@ -13,6 +13,9 @@
 #include <lib/base/elock.h>
 
 extern "C" {
+#if defined HAVE_STDLIB_H
+#undef HAVE_STDLIB_H
+#endif
 #include <jpeglib.h>
 }
 

@@ -1163,6 +1163,10 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	{
 		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.1880) + 0.1959) * 100);
 	}
+	else if (!strcmp(m_description, "Vuplus DVB-S NIM(7376 FBC)")) // VU+ Solo4k
+	{
+		ret = snr;
+	}
 	else if (!strcmp(m_description, "BCM7356 DVB-S2 NIM (internal)")
 		|| !strcmp(m_description, "BCM7346 DVB-S2 NIM (internal)")
 		|| !strcmp(m_description, "BCM7358 DVB-S2 NIM (internal)")
@@ -1174,14 +1178,13 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	{
 		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.1710) - 1.0000) * 100);
 	}
-	else if (!strcmp(m_description, "GIGA DVB-S2 NIM (TS3L10)")) //GB IP 4K
+	else if (!strcmp(m_description, "GIGA DVB-S2 NIM (TS3L10)") || !strcmp(m_description, "GIGA DVB-S2 NIM (TS2L08)")) //GB IP 4K
 	{
 		ret = snr;
 	}
-	else if (!strcmp(m_description, "DVB-S2 NIM(45208 FBC)") ||
-		!strcmp(m_description, "DVB-S2 NIM(45308 FBC)") ||
-		!strcmp(m_description, "DVB-S2X NIM(45308X FBC)")
-		)
+	else if (strstr(m_description, "NIM(45208 FBC)") ||
+		strstr(m_description, "NIM(45308 FBC)") ||
+		strstr(m_description, "NIM(45308X FBC)"))
 	{
 		ret = (int)(snr < 57500 ? (snr < 52500 ? (snr < 32200 ? 0.02640 * snr + 0.0 :  0.02604 * snr + 11.55125) : 0.01310 * snr + 661.55172) : 0.02826 * snr - 210.);
 	}
@@ -1190,13 +1193,13 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 		ret = (int)(snr / 17);
 	}
 	else if (!strcmp(m_description, "GIGA DVB-C/T NIM (SP8221L)")
-		|| !strcmp(m_description, "GIGA DVB-C/T NIM (SI4765)")
-		|| !strcmp(m_description, "GIGA DVB-C/T NIM (SI41652)")
-		|| !strcmp(m_description, "GIGA DVB-C/T2 NIM (SI4768)")
-		|| !strcmp(m_description, "GIGA DVB-C/T2 NIM (SI41682)")
-		|| !strcmp(m_description, "GIGA DVB-T2/C NIM (TT2L10)")
-		|| !strcmp(m_description, "GIGA DVB-T2/C NIM (TT3L10)")
-		)
+			|| !strcmp(m_description, "GIGA DVB-C/T NIM (SI4765)")
+			|| !strcmp(m_description, "GIGA DVB-C/T NIM (SI41652)")
+			|| !strcmp(m_description, "GIGA DVB-C/T2 NIM (SI4768)")
+			|| !strcmp(m_description, "GIGA DVB-C/T2 NIM (SI41682)")
+			|| !strcmp(m_description, "GIGA DVB-T2/C NIM (TT2L10)")
+			|| !strcmp(m_description, "GIGA DVB-T2/C NIM (TT3L10)")
+			)
 	{
 		int type = -1;
 		oparm.getSystem(type);
@@ -1208,17 +1211,9 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 				break;
 			case feTerrestrial:
 				ret = (int)(snr / 30);
-				ter_max = 1700;
+				ter_max = 4200;
 				break;
 		}
-	}
-	else if (!strcmp(m_description, "Vuplus DVB-S NIM(7376 FBC)")) // VU+ Solo4k
-	{
-		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.1480) + 0.9560) * 100);
-	}
-	else if (!strcmp(m_description, "BCM7362 (internal) DVB-S2")) // Xsarius
-	{
-		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.28) - 10.0) * 100);
 	}
 	else if (!strcmp(m_description, "Genpix"))
 	{
@@ -1280,6 +1275,44 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	else if (strstr(m_description, "Vuplus DVB-T NIM(BCM3466)")) // VU+ 4K dual DVB-C/T2
 	{
 		ret = (int)(snr / 43.5);
+	}
+	else if (!strcmp(m_description, "GIGA DVB-S2 NIM (TS3L10)")
+		|| !strcmp(m_description, "GIGA DVB-S2 NIM (TS2L08)")) //GB IP 4K
+	{
+		ret = snr;
+	}
+	else if (!strcmp(m_description, "GIGA DVB-C/T NIM (SP8221L)")
+		|| !strcmp(m_description, "GIGA DVB-C/T NIM (SI4765)")
+		|| !strcmp(m_description, "GIGA DVB-C/T NIM (SI41652)")
+		|| !strcmp(m_description, "GIGA DVB-C/T2 NIM (SI4768)")
+		|| !strcmp(m_description, "GIGA DVB-C/T2 NIM (SI41682)")
+		|| !strcmp(m_description, "GIGA DVB-T2/C NIM (TT2L10)")
+		|| !strcmp(m_description, "GIGA DVB-T2/C NIM (TT3L10)")
+		)
+	{
+		int type = -1;
+		oparm.getSystem(type);
+		switch (type)
+		{
+			case feCable:
+				ret = (int)(snr / 15);
+				cab_max = 4200;
+				break;
+			case feTerrestrial:
+				ret = (int)(snr / 30);
+				ter_max = 4200;
+				break;
+		}
+	}
+	else if (!strcmp(m_description, "BCM7356 DVB-S2 NIM (internal)") // VU+ Solo2
+		|| !strcmp(m_description, "BCM7346 DVB-S2 NIM (internal)")
+		|| !strcmp(m_description, "BCM7358 DVB-S2 NIM (internal)")
+		|| !strcmp(m_description, "BCM7362 DVB-S2 NIM (internal)")
+		|| !strcmp(m_description, "GIGA DVB-S2 NIM (Internal)")
+		|| !strcmp(m_description, "GIGA DVB-S2 NIM (SP2246T)")
+		|| !strcmp(m_description, "GIGA DVB-S2 NIM (TS2M08)"))
+	{
+		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.1710) - 1.0000) * 100);
 	}
 	else if(!strcmp(m_description, "TBS-5925") || !strcmp(m_description, "DVBS2BOX") || !strcmp(m_description, "TechniSat USB device"))
 	{

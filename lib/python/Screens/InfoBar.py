@@ -120,8 +120,12 @@ class InfoBar(InfoBarBase, InfoBarShowHide,
 
 		selection = 0
 		tlist = []
-		tlist.append(("Video: " + str(xres) + "x" + str(yres) + "@" + str(fpsFloat) + "hz", ""))
+		tlist.append(("Video: " + str(xres) + "x" + str(yres) + "@" + str(fpsFloat) + "Hz", ""))
 		tlist.append(("--", ""))
+		tlist.append(("NTSC", "ntsc"))
+		tlist.append(("480i", "480i"))
+		tlist.append(("480p", "480p"))
+		tlist.append(("PAL", "pal"))
 		tlist.append(("576i", "576i50"))
 		tlist.append(("576p", "576p50"))
 		tlist.append(("720p@50hz", "720p50"))
@@ -131,9 +135,10 @@ class InfoBar(InfoBarBase, InfoBarShowHide,
 		tlist.append(("1080p@23.976hz", "1080p23"))
 		tlist.append(("1080p@24hz", "1080p24"))
 		tlist.append(("1080p@25hz", "1080p25"))
+		tlist.append(("1080p@29.97hz", "1080p29"))
 		tlist.append(("1080p@30hz", "1080p30"))
 		tlist.append(("1080p@50hz", "1080p50"))
-		tlist.append(("1080p@59hz", "1080p59"))
+		tlist.append(("1080p@59.94hz", "1080p59"))
 		tlist.append(("1080p@60hz", "1080p60"))
 		keys = ["green", "", "yellow", "blue", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ]
 
@@ -142,7 +147,7 @@ class InfoBar(InfoBarBase, InfoBarShowHide,
 			if tlist[x][1] == mode:
 				selection = x
 		from Screens.ChoiceBox import ChoiceBox
-		self.session.openWithCallback(self.ResolutionSelect, ChoiceBox, title=_("Please select a resolution..."), list = tlist, selection = selection, keys = keys)
+		self.session.openWithCallback(self.ResolutionSelect, ChoiceBox, title=_("Please select a resolution"), list = tlist, selection = selection, keys = keys)
 
 	def ResolutionSelect(self, Resolution):
 		if not Resolution is None:

@@ -17,42 +17,57 @@ class VideoHardware:
 
 	modes = {}  # a list of (high-level) modes for a certain port.
 
-	rates["PAL"] =			{ "50Hz":	{ 50: "pal" } }
+	rates["PAL"] = {"50Hz": {50: "pal"}}
 
-	rates["576i"] =			{ "50Hz":	{ 50: "576i50" } }
+	rates["NTSC"] = {"60Hz": {60: "ntsc"}}
 
-	rates["576p"] =			{ "50Hz":	{ 50: "576p50" } }
+	rates["480i"] = {"60Hz": {60: "480i"}}
 
-	rates["720p"] =			{ "50Hz":	{ 50: "720p50" },
-					  "60Hz":	{ 60: "720p60" } }
+	rates["576i"] = {"50Hz": {50: "576i"}}
 
-	rates["1080i"] =		{ "50Hz":	{ 50: "1080i50" },
-					  "60Hz":	{ 60: "1080i60" } }
+	rates["480p"] = {"60Hz": {60: "480p"}}
 
-	rates["1080p"] =		{ "23Hz":	{ 50: "1080p23" },
-					  "24Hz":	{ 60: "1080p24" },
-					  "25Hz":	{ 60: "1080p25" },
-					  "29Hz":	{ 60: "1080p29" },
-					  "30Hz":	{ 60: "1080p30" },
-					  "50Hz":	{ 60: "1080p50" },
-					  "60Hz":	{ 60: "1080p60" } }
+	rates["576p"] = {"50Hz": {50: "576p"}}
 
-	rates["PC"] = {
-		"1024x768"  : { 60: "1024x768_60", 70: "1024x768_70", 75: "1024x768_75", 90: "1024x768_90", 100: "1024x768_100" }, #43 60 70 72 75 90 100
-		"1280x1024" : { 60: "1280x1024_60", 70: "1280x1024_70", 75: "1280x1024_75" }, #43 47 60 70 74 75
-		"1600x1200" : { 60: "1600x1200_60" }, #60 66 76
-	}
+	rates["720p"] = {"50Hz": {50: "720p50"},
+	                 "60Hz": {60: "720p"}}
+
+	rates["1080i"] = {"50Hz": {50: "1080i50"},
+	                  "60Hz": {60: "1080i"}}
+
+	rates["1080p"] = {"23Hz": {50: "1080p23"},
+	                  "24Hz": {60: "1080p24"},
+	                  "25Hz": {60: "1080p25"},
+	                  "29Hz": {60: "1080p29"},
+	                  "30Hz": {60: "1080p30"},
+	                  "50Hz": {60: "1080p50"},
+	                  "60Hz": {60: "1080p60"}}
+
+	rates["PC"] = {"1024x768"  : {60: "1024x768_60", 70: "1024x768_70", 75: "1024x768_75", 90: "1024x768_90", 100: "1024x768_100"}, #43 60 70 72 75 90 100
+	               "1280x1024" : {60: "1280x1024_60", 70: "1280x1024_70", 75: "1280x1024_75"}, #43 47 60 70 74 75
+	               "1600x1200" : {60: "1600x1200_60"}, #60 66 76
+	               "720x480"   : {60: "720x480"},
+	               "720x576"   : {60: "720x576"},
+	               "1280x720"  : {60: "1280x720"},
+	               "1280x720 multi": {50: "1280x720_50", 60: "1280x720"},
+	               "1920x1080" : {60: "1920x1080"},
+	               "1920x1080 multi": {50: "1920x1080_50", 60: "1920x1080"},
+	               "1280x1024" : {60: "1280x1024"},
+	               "1366x768"  : {60: "1366x768"},
+	               "1366x768 multi" : {50: "1366x768_50", 60: "1366x768"},
+	               "1280x768"  : {60: "1280x768"},
+	               "640x480"   : {60: "640x480"}}
 
 	if SystemInfo["HasScart"]:
 		modes["Scart"] = ["PAL"]
 #	elif SystemInfo["HasComposite"]:
 #		modes["RCA"] = ["576i", "PAL", "NTSC", "Multi"]
 	if SystemInfo["HasYPbPr"]:
-		modes["Component"] = ["720p", "1080p", "1080i", "576p", "576i"]
+		modes["Component"] = ["720p", "1080i", "1080p", "576p", "576i", "480i", "480p"]
 #	if SystemInfo["Has2160p"]:
 #		modes["DVI"] = ["720p", "1080p", "2160p", "1080i", "576p", "480p", "576i", "480i"]
 #	else:
-	modes["HDMI"] = ["720p", "1080p", "1080i", "576p", "576i"]
+	modes["HDMI"] = ["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"]
 	modes["HDMI-PC"] = ["PC"]
 
 	def getOutputAspect(self):
@@ -91,7 +106,7 @@ class VideoHardware:
 
 		self.readAvailableModes()
 		self.readPreferredModes()
-		self.widescreen_modes = set(["576i", "576p", "720p", "1080i", "1080p", "2160p30"]).intersection(*[self.modes_available])
+		self.widescreen_modes = set(["480i", "480p", "576i", "576p", "720p", "1080i", "1080p"]).intersection(*[self.modes_available])
 
 		if "DVI-PC" in self.modes and not self.getModeList("DVI-PC"):
 			print "[VideoHardware] remove DVI-PC because of not existing modes"
@@ -115,7 +130,6 @@ class VideoHardware:
 		config.av.colorformat_hdmi.addNotifier(self.setHDMIColor)
 		config.av.colorformat_yuv.addNotifier(self.setYUVColor)
 #+++<
-
 		config.av.aspect.addNotifier(self.updateAspect)
 		config.av.wss.addNotifier(self.updateAspect)
 		config.av.policy_169.addNotifier(self.updateAspect)
@@ -272,9 +286,11 @@ class VideoHardware:
 			for (mode, rates) in modes:
 				ratelist = []
 				for rate in rates:
-					if rate in ("auto") and not SystemInfo["Has24hz"]:
-						continue
-					ratelist.append((rate, rate))
+					if rate in ("auto"):
+						if SystemInfo["Has24hz"]:
+							ratelist.append((rate, rate))
+					else:
+						ratelist.append((rate, rate))
 				config.av.videorate[mode] = ConfigSelection(choices=ratelist)
 		config.av.videoport = ConfigSelection(choices=lst)
 
@@ -383,4 +399,3 @@ class VideoHardware:
 
 video_hw = VideoHardware()
 video_hw.setConfiguredMode()
-
